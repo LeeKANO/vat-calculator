@@ -179,6 +179,8 @@ export default function Home() {
             setDeductions={setIncomeDeductions}
             yellowUmbrella={incomeYellowUmbrella}
             setYellowUmbrella={setIncomeYellowUmbrella}
+            yellowDuration={yellowDuration}
+            yellowInterestRate={yellowInterestRate}
             onReset={resetIncome}
           />}
           {activeTab === 'schedule' && <TaxSchedule />}
