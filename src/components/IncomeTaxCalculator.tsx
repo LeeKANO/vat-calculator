@@ -322,6 +322,9 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
                                 <span>종합소득세</span>
                                 <span className="font-medium">{formatCurrency(result.incomeTax)}</span>
                             </div>
+                            <div className="text-xs text-gray-400 text-right -mt-2">
+                                ({formatCurrency(result.taxableIncome)} × {result.bracket.rate * 100}%) - {formatCurrency(result.bracket.deduction)}
+                            </div>
                             <div className="flex justify-between text-sm text-gray-700">
                                 <span>지방소득세 (10%)</span>
                                 <span className="font-medium">{formatCurrency(result.localTax)}</span>
