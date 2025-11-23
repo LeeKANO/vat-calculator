@@ -365,13 +365,14 @@ const VATCalculator: React.FC<VATCalculatorProps> = ({
                                 <div className="relative">
                                     <input
                                         type="text"
-                                        value={refundPurchaseAmount === 0 ? '' : refundPurchaseAmount.toLocaleString()}
+                                        disabled={mode === 'simplified'}
+                                        value={mode === 'simplified' ? '' : (refundPurchaseAmount === 0 ? '' : refundPurchaseAmount.toLocaleString())}
                                         onChange={(e) => {
                                             const val = e.target.value.replace(/,/g, '');
                                             if (!isNaN(Number(val))) setRefundPurchaseAmount(Number(val));
                                         }}
-                                        className="w-full p-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
-                                        placeholder="0"
+                                        className={`w-full p-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none ${mode === 'simplified' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}`}
+                                        placeholder={mode === 'simplified' ? "간이과세자는 환급 대상이 아닙니다" : "0"}
                                     />
                                     <span className="absolute right-4 top-2.5 text-indigo-400">원</span>
                                 </div>
@@ -379,7 +380,9 @@ const VATCalculator: React.FC<VATCalculatorProps> = ({
                             <div className="flex justify-between items-center pt-2 border-t border-indigo-200">
                                 <span className="text-indigo-900 font-medium">예상 환급금 (부가세액)</span>
                                 <span className="text-xl font-bold text-indigo-600">
-                                    {formatCurrency(Math.floor(refundPurchaseAmount - (refundPurchaseAmount / 1.1)))}
+                                    {mode === 'general'
+                                        ? formatCurrency(Math.floor(refundPurchaseAmount - (refundPurchaseAmount / 1.1)))
+                                        : '0원 (대상 아님)'}
                                 </span>
                             </div>
 
