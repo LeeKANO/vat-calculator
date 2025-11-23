@@ -24,6 +24,8 @@ interface IncomeTaxCalculatorProps {
     setDeductions: (value: number) => void;
     yellowUmbrella: number;
     setYellowUmbrella: (value: number) => void;
+    yellowDuration: number;
+    yellowInterestRate: number;
     onReset: () => void;
 }
 
@@ -36,6 +38,8 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
     setDeductions,
     yellowUmbrella,
     setYellowUmbrella,
+    yellowDuration,
+    yellowInterestRate,
     onReset
 }) => {
     const [result, setResult] = useState({
@@ -49,11 +53,13 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
         nextLowerBracketGap: 0,
         nextLowerBracketLimit: 0,
         nextLowerBracketRate: 0,
+        taxSaving: 0, // 절세액
+        compoundInterest: 0, // 복리 이자
     });
 
     useEffect(() => {
         calculate();
-    }, [revenue, expenses, deductions, yellowUmbrella]);
+    }, [revenue, expenses, deductions, yellowUmbrella, yellowDuration, yellowInterestRate]);
 
     const calculate = () => {
         const income = Math.max(revenue - expenses, 0); // 사업소득금액
@@ -72,22 +78,56 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
 
         const actualYellowUmbrellaDeduction = Math.min(yellowUmbrella, yellowUmbrellaLimit);
 
-        // 과세표준 = 사업소득금액 - (기본공제 + 노란우산공제)
-        const taxableIncome = Math.max(income - deductions - actualYellowUmbrellaDeduction, 0);
+        // 1. 현재 조건 세금 계산
+        const calculateTax = (deductionAmount: number) => {
+            const taxable = Math.max(income - deductions - deductionAmount, 0);
+            let tax = 0;
+            let bracket = TAX_BRACKETS[0];
 
-        let incomeTax = 0;
-        let appliedBracket = TAX_BRACKETS[0];
+            for (let i = 0; i < TAX_BRACKETS.length; i++) {
+                if (taxable <= TAX_BRACKETS[i].limit) {
+                    tax = taxable * TAX_BRACKETS[i].rate - TAX_BRACKETS[i].deduction;
+                    bracket = TAX_BRACKETS[i];
+                    break;
+                } else if (TAX_BRACKETS[i].limit === Infinity) {
+                    tax = taxable * TAX_BRACKETS[i].rate - TAX_BRACKETS[i].deduction;
+                    bracket = TAX_BRACKETS[i];
+                }
+            }
+            return { tax: Math.max(tax, 0), bracket };
+        };
+
+        const currentTax = calculateTax(actualYellowUmbrellaDeduction);
+        const currentTotalTax = Math.floor(currentTax.tax * 1.1); // 지방세 포함
+
+        // 2. 노란우산공제 없을 때 세금 계산 (절세액 확인용)
+        const noDeductionTax = calculateTax(0);
+        const noDeductionTotalTax = Math.floor(noDeductionTax.tax * 1.1);
+        const taxSaving = noDeductionTotalTax - currentTotalTax;
+
+        // 3. 복리 이자 계산 (YellowUmbrellaGuide 로직 활용)
+        // yellowUmbrella는 연간 납입액으로 간주 -> 월 납입액 = yellowUmbrella / 12
+        const monthlyPayment = yellowUmbrella / 12;
+        const quarterlyRate = yellowInterestRate / 100 / 4;
+        const totalQuarters = yellowDuration * 4;
+        const r = quarterlyRate;
+        const n = totalQuarters;
+        const P = monthlyPayment * 3; // 분기 납입액
+
+        // Total = A * ((1+r)^n - 1) / r * (1+r)
+        const totalAmount = P * ((Math.pow(1 + r, n) - 1) / r) * (1 + r);
+        const totalPrincipal = monthlyPayment * 12 * yellowDuration;
+        const compoundInterest = Math.max(totalAmount - totalPrincipal, 0);
+
+        // Next Bracket Gap Calculation
+        const taxableIncome = Math.max(income - deductions - actualYellowUmbrellaDeduction, 0);
         let nextLowerBracketGap = 0;
         let nextLowerBracketLimit = 0;
         let nextLowerBracketRate = 0;
 
+        // ... (Existing gap logic simplified/reused if possible, but keeping inline for safety)
         for (let i = 0; i < TAX_BRACKETS.length; i++) {
-            const bracket = TAX_BRACKETS[i];
-            if (taxableIncome <= bracket.limit) {
-                incomeTax = taxableIncome * bracket.rate - bracket.deduction;
-                appliedBracket = bracket;
-
-                // Calculate gap to lower bracket if not in the lowest bracket
+            if (taxableIncome <= TAX_BRACKETS[i].limit) {
                 if (i > 0) {
                     const lowerBracket = TAX_BRACKETS[i - 1];
                     nextLowerBracketLimit = lowerBracket.limit;
@@ -95,11 +135,7 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
                     nextLowerBracketGap = taxableIncome - lowerBracket.limit;
                 }
                 break;
-            } else if (bracket.limit === Infinity) {
-                incomeTax = taxableIncome * bracket.rate - bracket.deduction;
-                appliedBracket = bracket;
-
-                // Logic for the highest bracket
+            } else if (TAX_BRACKETS[i].limit === Infinity) {
                 const lowerBracket = TAX_BRACKETS[TAX_BRACKETS.length - 2];
                 nextLowerBracketLimit = lowerBracket.limit;
                 nextLowerBracketRate = lowerBracket.rate;
@@ -107,21 +143,19 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
             }
         }
 
-        incomeTax = Math.max(incomeTax, 0);
-        const localTax = Math.floor(incomeTax * 0.1);
-        const totalTax = incomeTax + localTax;
-
         setResult({
             taxableIncome,
-            incomeTax,
-            localTax,
-            totalTax,
-            effectiveRate: revenue > 0 ? (totalTax / revenue) * 100 : 0,
-            bracket: appliedBracket,
+            incomeTax: currentTax.tax,
+            localTax: Math.floor(currentTax.tax * 0.1),
+            totalTax: currentTotalTax,
+            effectiveRate: revenue > 0 ? (currentTotalTax / revenue) * 100 : 0,
+            bracket: currentTax.bracket,
             yellowUmbrellaDeduction: actualYellowUmbrellaDeduction,
             nextLowerBracketGap,
             nextLowerBracketLimit,
             nextLowerBracketRate,
+            taxSaving,
+            compoundInterest,
         });
     };
 
@@ -213,7 +247,7 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
 
                             <div>
                                 <label className="block text-sm font-bold text-gray-700 mb-2 flex items-center gap-2">
-                                    노란우산공제 납입액
+                                    노란우산공제 납입액 (연간)
                                     <span className="text-xs text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded-full font-medium">절세 꿀팁</span>
                                 </label>
                                 <div className="relative">
@@ -298,6 +332,30 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
                             <span className="text-3xl font-extrabold text-green-600">{formatCurrency(result.totalTax)}</span>
                         </div>
 
+                        {/* Yellow Umbrella Benefits Box */}
+                        {result.yellowUmbrellaDeduction > 0 && (
+                            <div className="mt-4 bg-yellow-100 p-4 rounded-lg border border-yellow-200 shadow-sm">
+                                <h4 className="text-sm font-bold text-yellow-800 mb-2 flex items-center gap-1">
+                                    <DollarSign className="w-4 h-4" />
+                                    노란우산공제 혜택 ({yellowDuration}년 납입 기준)
+                                </h4>
+                                <div className="space-y-2">
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-yellow-900">절세 효과 (매년)</span>
+                                        <span className="font-bold text-blue-600">+{formatCurrency(result.taxSaving)}</span>
+                                    </div>
+                                    <div className="flex justify-between text-sm">
+                                        <span className="text-yellow-900">예상 복리 이자 ({yellowInterestRate}%)</span>
+                                        <span className="font-bold text-blue-600">+{formatCurrency(result.compoundInterest)}</span>
+                                    </div>
+                                    <div className="border-t border-yellow-200 pt-2 mt-2 flex justify-between text-sm font-bold">
+                                        <span className="text-yellow-900">총 혜택 (절세x{yellowDuration}년 + 이자)</span>
+                                        <span className="text-red-600">+{formatCurrency(result.taxSaving * yellowDuration + result.compoundInterest)}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Optimization Tip inside Result Box */}
                         {result.nextLowerBracketGap > 0 && (
                             <div className="mt-4 bg-white p-3 rounded-lg border border-indigo-100 shadow-sm">
@@ -314,7 +372,39 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
                         )}
                     </div>
 
-                    {/* Right: Yellow Umbrella Table */}
+                    {/* Right: Tax Rates Table */}
+                    <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm h-full">
+                        <h3 className="text-lg font-bold text-gray-700 mb-4">2024/2025 종합소득세 세율표</h3>
+                        <div className="overflow-x-auto bg-white rounded-lg border border-gray-200">
+                            <table className="w-full text-xs text-left text-gray-500">
+                                <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+                                    <tr>
+                                        <th scope="col" className="px-3 py-2 font-bold">과세표준</th>
+                                        <th scope="col" className="px-3 py-2 font-bold">세율</th>
+                                        <th scope="col" className="px-3 py-2 font-bold">누진공제</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {TAX_BRACKETS.map((bracket, index) => (
+                                        <tr key={index} className={`border-b last:border-0 ${result.bracket.rate === bracket.rate ? 'bg-green-50 font-bold text-green-800' : ''}`}>
+                                            <td className="px-3 py-2">
+                                                {index === 0 ? `${formatCurrency(bracket.limit)} 이하` :
+                                                    index === TAX_BRACKETS.length - 1 ? `${formatCurrency(TAX_BRACKETS[index - 1].limit)} 초과` :
+                                                        `${formatCurrency(TAX_BRACKETS[index - 1].limit)} ~ ${formatCurrency(bracket.limit)}`}
+                                            </td>
+                                            <td className="px-3 py-2">{bracket.rate * 100}%</td>
+                                            <td className="px-3 py-2">{formatCurrency(bracket.deduction)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Row 3: Tax Rates & Deductible Expenses */}
+                <div className="grid md:grid-cols-2 gap-6 items-stretch">
+                    {/* Left: Yellow Umbrella Table */}
                     <div className="bg-yellow-50 p-6 rounded-xl border border-yellow-200 shadow-sm h-full">
                         <div className="flex items-center gap-2 mb-4">
                             <Info className="w-5 h-5 text-yellow-700" />
@@ -345,38 +435,6 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
                                         <td className="px-3 py-2">1억원 초과</td>
                                         <td className="px-3 py-2 font-bold text-yellow-600">200만원</td>
                                     </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Row 3: Tax Rates & Deductible Expenses */}
-                <div className="grid md:grid-cols-2 gap-6 items-stretch">
-                    {/* Left: Tax Rates Table */}
-                    <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm h-full">
-                        <h3 className="text-lg font-bold text-gray-700 mb-4">2024/2025 종합소득세 세율표</h3>
-                        <div className="overflow-x-auto bg-white rounded-lg border border-gray-200">
-                            <table className="w-full text-xs text-left text-gray-500">
-                                <thead className="text-xs text-gray-700 uppercase bg-gray-100">
-                                    <tr>
-                                        <th scope="col" className="px-3 py-2 font-bold">과세표준</th>
-                                        <th scope="col" className="px-3 py-2 font-bold">세율</th>
-                                        <th scope="col" className="px-3 py-2 font-bold">누진공제</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {TAX_BRACKETS.map((bracket, index) => (
-                                        <tr key={index} className={`border-b last:border-0 ${result.bracket.rate === bracket.rate ? 'bg-green-50 font-bold text-green-800' : ''}`}>
-                                            <td className="px-3 py-2">
-                                                {index === 0 ? `${formatCurrency(bracket.limit)} 이하` :
-                                                    index === TAX_BRACKETS.length - 1 ? `${formatCurrency(TAX_BRACKETS[index - 1].limit)} 초과` :
-                                                        `${formatCurrency(TAX_BRACKETS[index - 1].limit)} ~ ${formatCurrency(bracket.limit)}`}
-                                            </td>
-                                            <td className="px-3 py-2">{bracket.rate * 100}%</td>
-                                            <td className="px-3 py-2">{formatCurrency(bracket.deduction)}</td>
-                                        </tr>
-                                    ))}
                                 </tbody>
                             </table>
                         </div>
