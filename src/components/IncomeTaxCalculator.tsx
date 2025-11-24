@@ -203,7 +203,7 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
                                             const val = e.target.value.replace(/,/g, '');
                                             if (!isNaN(Number(val))) setRevenue(Number(val));
                                         }}
-                                        className="w-full p-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+                                        className="w-full p-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-black opacity-100 font-bold placeholder-gray-400"
                                         placeholder="0"
                                     />
                                     <span className="absolute right-4 top-3 text-gray-400">원</span>
@@ -220,7 +220,7 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
                                             const val = e.target.value.replace(/,/g, '');
                                             if (!isNaN(Number(val))) setExpenses(Number(val));
                                         }}
-                                        className="w-full p-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+                                        className="w-full p-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-black opacity-100 font-bold placeholder-gray-400"
                                         placeholder="0"
                                     />
                                     <span className="absolute right-4 top-3 text-gray-400">원</span>
@@ -237,7 +237,7 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
                                             const val = e.target.value.replace(/,/g, '');
                                             if (!isNaN(Number(val))) setDeductions(Number(val));
                                         }}
-                                        className="w-full p-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none"
+                                        className="w-full p-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none text-black opacity-100 font-bold placeholder-gray-400"
                                         placeholder="1500000"
                                     />
                                     <span className="absolute right-4 top-3 text-gray-400">원</span>
@@ -258,7 +258,7 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
                                             const val = e.target.value.replace(/,/g, '');
                                             if (!isNaN(Number(val))) setYellowUmbrella(Number(val));
                                         }}
-                                        className="w-full p-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
+                                        className="w-full p-3 text-base border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none text-black opacity-100 font-bold placeholder-gray-400"
                                         placeholder="0"
                                     />
                                     <span className="absolute right-4 top-3 text-gray-400">원</span>
