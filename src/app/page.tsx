@@ -9,10 +9,12 @@ import PenaltyTaxGuide from '@/components/PenaltyTaxGuide';
 import FireInsuranceGuide from '@/components/FireInsuranceGuide';
 import LaborGuide from '@/components/LaborGuide';
 import BusinessCardGuide from '@/components/BusinessCardGuide';
-import { Calculator, Calendar, DollarSign, Shield, AlertTriangle, Flame, Briefcase, CreditCard } from 'lucide-react';
+import SupportFundsGuide from '@/components/SupportFundsGuide';
+import DeliveryProfitCalculator from '@/components/DeliveryProfitCalculator';
+import { Calculator, Calendar, DollarSign, Shield, AlertTriangle, Flame, Briefcase, CreditCard, Gift, Bike } from 'lucide-react';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'vat' | 'income' | 'schedule' | 'yellow' | 'penalty' | 'fire' | 'labor' | 'card'>('schedule');
+  const [activeTab, setActiveTab] = useState<'vat' | 'income' | 'schedule' | 'yellow' | 'penalty' | 'fire' | 'labor' | 'card' | 'support' | 'delivery'>('schedule');
 
   // VATCalculator states
   const [vatMode, setVatMode] = useState<'general' | 'simplified'>('general');
@@ -151,6 +153,26 @@ export default function Home() {
             <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" />
             사업자카드
           </button>
+          <button
+            onClick={() => setActiveTab('support')}
+            className={`w-full py-3 px-3 rounded-lg font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2 whitespace-nowrap
+              ${activeTab === 'support'
+                ? 'bg-emerald-50 text-emerald-600 shadow-sm ring-1 ring-emerald-200'
+                : 'text-gray-500 hover:bg-gray-50'}`}
+          >
+            <Gift className="w-4 h-4 sm:w-5 sm:h-5" />
+            지원금
+          </button>
+          <button
+            onClick={() => setActiveTab('delivery')}
+            className={`w-full py-3 px-3 rounded-lg font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2 whitespace-nowrap
+              ${activeTab === 'delivery'
+                ? 'bg-orange-50 text-orange-600 shadow-sm ring-1 ring-orange-200'
+                : 'text-gray-500 hover:bg-gray-50'}`}
+          >
+            <Bike className="w-4 h-4 sm:w-5 sm:h-5" />
+            배달수수료
+          </button>
         </div>
 
         {/* Content Area */}
@@ -197,6 +219,8 @@ export default function Home() {
           {activeTab === 'fire' && <FireInsuranceGuide />}
           {activeTab === 'labor' && <LaborGuide />}
           {activeTab === 'card' && <BusinessCardGuide />}
+          {activeTab === 'support' && <SupportFundsGuide />}
+          {activeTab === 'delivery' && <DeliveryProfitCalculator />}
         </div>
       </div>
     </main>
