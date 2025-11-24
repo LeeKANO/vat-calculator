@@ -251,7 +251,7 @@ const YellowUmbrellaGuide: React.FC<YellowUmbrellaGuideProps> = ({
                                                     const val = Number(e.target.value.replace(/,/g, ''));
                                                     if (!isNaN(val)) setMonthlyPayment(val);
                                                 }}
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none text-black opacity-100 font-bold placeholder-gray-400"
                                             />
                                             <span className="absolute right-4 top-3 text-gray-400">원</span>
                                         </div>
@@ -293,7 +293,7 @@ const YellowUmbrellaGuide: React.FC<YellowUmbrellaGuideProps> = ({
                                                 step="0.1"
                                                 value={interestRate}
                                                 onChange={(e) => setInterestRate(Number(e.target.value))}
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none"
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none text-black opacity-100 font-bold placeholder-gray-400"
                                             />
                                             <span className="absolute right-4 top-3 text-gray-400">%</span>
                                         </div>
