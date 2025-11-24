@@ -198,7 +198,7 @@ const DeliveryProfitCalculator = () => {
                                 type="number"
                                 value={menuPrice}
                                 onChange={(e) => setMenuPrice(Number(e.target.value))}
-                                className="w-full p-3 pl-8 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none font-bold text-gray-900"
+                                className="w-full p-3 pl-8 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none font-bold text-black placeholder-gray-400 opacity-100"
                             />
                             <span className="absolute left-3 top-3.5 text-gray-400">₩</span>
                         </div>
@@ -210,7 +210,7 @@ const DeliveryProfitCalculator = () => {
                                 type="number"
                                 value={foodCost}
                                 onChange={(e) => setFoodCost(Number(e.target.value))}
-                                className="w-full p-3 pl-8 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none font-bold text-gray-900"
+                                className="w-full p-3 pl-8 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none font-bold text-black placeholder-gray-400 opacity-100"
                             />
                             <span className="absolute left-3 top-3.5 text-gray-400">₩</span>
                         </div>
@@ -222,7 +222,7 @@ const DeliveryProfitCalculator = () => {
                                 type="number"
                                 value={deliveryFee}
                                 onChange={(e) => setDeliveryFee(Number(e.target.value))}
-                                className="w-full p-3 pl-8 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none font-bold text-gray-900"
+                                className="w-full p-3 pl-8 bg-gray-50 border border-gray-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none font-bold text-black placeholder-gray-400 opacity-100"
                             />
                             <span className="absolute left-3 top-3.5 text-gray-400">₩</span>
                         </div>
@@ -234,7 +234,7 @@ const DeliveryProfitCalculator = () => {
                                 type="number"
                                 value={quantity}
                                 onChange={(e) => setQuantity(Number(e.target.value))}
-                                className="w-full p-3 pl-2 bg-indigo-50 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none font-bold text-indigo-900"
+                                className="w-full p-3 pl-2 bg-indigo-50 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none font-bold text-black placeholder-indigo-400 opacity-100"
                             />
                             <span className="absolute right-3 top-3.5 text-indigo-400 text-xs">건</span>
                         </div>
@@ -347,7 +347,7 @@ const DeliveryProfitCalculator = () => {
                             </thead>
                             <tbody className="divide-y divide-gray-100">
                                 {adData.map((ad, idx) => (
-                                    <tr key={idx} className={`hover:bg-gray-50 transition-colors ${ad.isDeleted ? 'bg-gray-50 text-gray-400' : ''}`}>
+                                    <tr key={idx} className={`hover:bg-gray-50 transition-colors ${ad.isDeleted ? 'bg-gray-50 text-gray-400' : 'text-gray-900'}`}>
                                         <td className="p-4 font-bold whitespace-nowrap">
                                             <div className="flex items-center gap-2">
                                                 <div className={`w-1.5 h-6 rounded-full ${ad.color === 'blue' ? 'bg-blue-500' :
@@ -355,19 +355,19 @@ const DeliveryProfitCalculator = () => {
                                                             ad.color === 'red' ? 'bg-red-500' :
                                                                 'bg-orange-500'
                                                     } ${ad.isDeleted ? 'bg-gray-400' : ''}`}></div>
-                                                {ad.platform}
+                                                <span className={ad.isDeleted ? 'text-gray-400' : 'text-gray-900'}>{ad.platform}</span>
                                             </div>
                                         </td>
                                         <td className="p-4 font-medium whitespace-nowrap">
-                                            {ad.isDeleted ? <span className="line-through decoration-gray-400">{ad.product}</span> : ad.product}
+                                            {ad.isDeleted ? <span className="line-through decoration-gray-400">{ad.product}</span> : <span className="text-gray-900">{ad.product}</span>}
                                         </td>
-                                        <td className="p-4 whitespace-nowrap">
+                                        <td className="p-4 whitespace-nowrap text-gray-900">
                                             {ad.isDeleted ? <span className="line-through decoration-gray-400">{ad.billing}</span> : ad.billing}
                                         </td>
                                         <td className="p-4 font-bold whitespace-nowrap">
-                                            {ad.isDeleted ? <span className="line-through decoration-gray-400">{ad.cost}</span> : ad.cost}
+                                            {ad.isDeleted ? <span className="line-through decoration-gray-400">{ad.cost}</span> : <span className="text-gray-900">{ad.cost}</span>}
                                         </td>
-                                        <td className="p-4 text-xs leading-relaxed">
+                                        <td className="p-4 text-xs leading-relaxed text-gray-900">
                                             {ad.features}
                                         </td>
                                     </tr>
