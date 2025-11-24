@@ -262,11 +262,11 @@ const DeliveryProfitCalculator = () => {
                         <tbody className="divide-y divide-gray-100">
                             {results.map((res) => (
                                 <tr key={res.platform} className={`hover:bg-gray-50 transition-colors ${res.platform === 'ddaengyo' ? 'bg-orange-50/50' : ''}`}>
-                                    <td className="p-4 font-bold flex items-center gap-2">
+                                    <td className="p-4 font-bold flex items-center gap-2 text-black">
                                         <div className={`w-2 h-8 rounded-full ${res.color === 'blue' ? 'bg-blue-500' :
-                                                res.color === 'green' ? 'bg-green-500' :
-                                                    res.color === 'red' ? 'bg-red-500' :
-                                                        'bg-orange-500'
+                                            res.color === 'green' ? 'bg-green-500' :
+                                                res.color === 'red' ? 'bg-red-500' :
+                                                    'bg-orange-500'
                                             }`}></div>
                                         {res.name}
                                         {res.platform === 'ddaengyo' && (
@@ -351,11 +351,11 @@ const DeliveryProfitCalculator = () => {
                                         <td className="p-4 font-bold whitespace-nowrap">
                                             <div className="flex items-center gap-2">
                                                 <div className={`w-1.5 h-6 rounded-full ${ad.color === 'blue' ? 'bg-blue-500' :
-                                                        ad.color === 'green' ? 'bg-green-500' :
-                                                            ad.color === 'red' ? 'bg-red-500' :
-                                                                'bg-orange-500'
+                                                    ad.color === 'green' ? 'bg-green-500' :
+                                                        ad.color === 'red' ? 'bg-red-500' :
+                                                            'bg-orange-500'
                                                     } ${ad.isDeleted ? 'bg-gray-400' : ''}`}></div>
-                                                <span className={ad.isDeleted ? 'text-gray-400' : 'text-gray-900'}>{ad.platform}</span>
+                                                <span className={ad.isDeleted ? 'text-gray-400' : 'text-black'}>{ad.platform}</span>
                                             </div>
                                         </td>
                                         <td className="p-4 font-medium whitespace-nowrap">
