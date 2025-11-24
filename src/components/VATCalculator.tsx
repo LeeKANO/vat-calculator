@@ -192,7 +192,7 @@ const VATCalculator: React.FC<VATCalculatorProps> = ({
                                         <div className="relative">
                                             <button
                                                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                                                className="w-full p-3 border border-gray-300 rounded-lg text-left flex justify-between items-center hover:border-blue-500 focus:ring-2 focus:ring-blue-500 outline-none bg-white"
+                                                className="w-full p-3 border border-gray-300 rounded-lg text-left flex justify-between items-center hover:border-blue-500 focus:ring-2 focus:ring-blue-500 outline-none bg-white text-black opacity-100 font-bold"
                                             >
                                                 <span className={selectedIndustry ? 'text-gray-900' : 'text-gray-400'}>
                                                     {selectedIndustry
@@ -209,7 +209,7 @@ const VATCalculator: React.FC<VATCalculatorProps> = ({
                                                             type="text"
                                                             value={searchTerm}
                                                             onChange={(e) => setSearchTerm(e.target.value)}
-                                                            className="w-full p-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:border-blue-500"
+                                                            className="w-full p-2 border border-gray-200 rounded-md text-sm focus:outline-none focus:border-blue-500 text-black opacity-100 font-bold placeholder-gray-400"
                                                             placeholder="업종명 검색..."
                                                             autoFocus
                                                         />
@@ -244,7 +244,7 @@ const VATCalculator: React.FC<VATCalculatorProps> = ({
                                                 const val = e.target.value.replace(/,/g, '');
                                                 if (!isNaN(Number(val))) setRevenue(Number(val));
                                             }}
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-black opacity-100 font-bold placeholder-gray-400"
                                             placeholder="0"
                                         />
                                         <span className="absolute right-4 top-3 text-gray-400">원</span>
@@ -261,7 +261,7 @@ const VATCalculator: React.FC<VATCalculatorProps> = ({
                                                 const val = e.target.value.replace(/,/g, '');
                                                 if (!isNaN(Number(val))) setPurchase(Number(val));
                                             }}
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-black opacity-100 font-bold placeholder-gray-400"
                                             placeholder="0"
                                         />
                                         <span className="absolute right-4 top-3 text-gray-400">원</span>
@@ -282,7 +282,7 @@ const VATCalculator: React.FC<VATCalculatorProps> = ({
                                                     const val = e.target.value.replace(/,/g, '');
                                                     if (!isNaN(Number(val))) setCreditCardSales(Number(val));
                                                 }}
-                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none"
+                                                className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-black opacity-100 font-bold placeholder-gray-400"
                                                 placeholder="0"
                                             />
                                             <span className="absolute right-4 top-3 text-gray-400">원</span>
@@ -371,7 +371,7 @@ const VATCalculator: React.FC<VATCalculatorProps> = ({
                                             const val = e.target.value.replace(/,/g, '');
                                             if (!isNaN(Number(val))) setRefundPurchaseAmount(Number(val));
                                         }}
-                                        className={`w-full p-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none ${mode === 'simplified' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}`}
+                                        className={`w-full p-2 border border-indigo-200 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-black opacity-100 font-bold placeholder-gray-400 ${mode === 'simplified' ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}`}
                                         placeholder={mode === 'simplified' ? "간이과세자는 환급 대상이 아닙니다" : "0"}
                                     />
                                     <span className="absolute right-4 top-2.5 text-indigo-400">원</span>
