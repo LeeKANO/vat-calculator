@@ -222,7 +222,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
     };
 
     return (
-        <div className="max-w-4xl mx-auto p-4 bg-white rounded-xl shadow-lg">
+        <div className="max-w-4xl mx-auto p-4 bg-white rounded-xl shadow-lg text-gray-900">
             <div className="flex items-center justify-between mb-6">
                 <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
                     <PiggyBank className="w-6 h-6 text-green-600" />
@@ -255,7 +255,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                             const val = e.target.value.replace(/,/g, '');
                                             if (!isNaN(Number(val))) setRevenue(Number(val));
                                         }}
-                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold text-sm"
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold text-sm text-gray-900"
                                         placeholder="0"
                                     />
                                     <span className="absolute right-3 top-2 text-gray-400 text-xs">원</span>
@@ -271,7 +271,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                             const val = e.target.value.replace(/,/g, '');
                                             if (!isNaN(Number(val))) setExpenses(Number(val));
                                         }}
-                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold text-sm"
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold text-sm text-gray-900"
                                         placeholder="0"
                                     />
                                     <span className="absolute right-3 top-2 text-gray-400 text-xs">원</span>
@@ -311,7 +311,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                     type="number"
                                                     value={employeeCount}
                                                     onChange={(e) => setEmployeeCount(Number(e.target.value))}
-                                                    className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs"
+                                                    className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs text-gray-900"
                                                     placeholder="0"
                                                 />
                                                 <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">명</span>
@@ -327,7 +327,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                         const val = e.target.value.replace(/,/g, '');
                                                         if (!isNaN(Number(val))) setEmployeeSalary(Number(val));
                                                     }}
-                                                    className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs"
+                                                    className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs text-gray-900"
                                                     placeholder="0"
                                                 />
                                                 <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">원</span>
@@ -349,7 +349,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                     type="number"
                                                     value={freelancerCount}
                                                     onChange={(e) => setFreelancerCount(Number(e.target.value))}
-                                                    className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs"
+                                                    className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs text-gray-900"
                                                     placeholder="0"
                                                 />
                                                 <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">명</span>
@@ -365,7 +365,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                         const val = e.target.value.replace(/,/g, '');
                                                         if (!isNaN(Number(val))) setFreelancerPayment(Number(val));
                                                     }}
-                                                    className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs"
+                                                    className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs text-gray-900"
                                                     placeholder="0"
                                                 />
                                                 <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">원</span>
@@ -398,7 +398,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                 const val = e.target.value.replace(/,/g, '');
                                                 if (!isNaN(Number(val))) setCardSpending(Number(val));
                                             }}
-                                            className="w-full p-1.5 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-right pr-6 text-xs"
+                                            className="w-full p-1.5 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-right pr-6 text-xs text-gray-900"
                                             placeholder="0"
                                         />
                                         <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">원</span>
@@ -443,7 +443,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                             const val = e.target.value.replace(/,/g, '');
                                             if (!isNaN(Number(val))) setYellowUmbrella(Number(val));
                                         }}
-                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none font-bold text-sm"
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none font-bold text-sm text-gray-900"
                                         placeholder="0"
                                     />
                                     <span className="absolute right-3 top-2 text-gray-400 text-xs">원</span>
@@ -455,7 +455,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                     {/* Right: Calculation Result (Equal Height) */}
                     <div className="bg-green-50 p-4 rounded-xl border border-green-200 h-full flex flex-col">
                         <h3 className="text-base font-bold text-green-800 mb-3">계산 결과</h3>
-                        <div className="space-y-2 text-sm flex-grow">
+                        <div className="space-y-2 text-sm flex-grow text-gray-900">
                             <div className="flex justify-between">
                                 <span className="text-gray-600">과세표준</span>
                                 <span className="font-bold text-gray-900">
@@ -497,7 +497,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                             <h4 className="text-xs font-bold text-yellow-800 mb-1.5 flex items-center gap-1">
                                 <DollarSign className="w-3 h-3" /> 노란우산공제 혜택 (10년 납입 기준)
                             </h4>
-                            <div className="space-y-1 text-xs">
+                            <div className="space-y-1 text-xs text-gray-900">
                                 <div className="flex justify-between text-blue-700">
                                     <span>절세 효과 (매년)</span>
                                     <span className="font-bold">+{formatCurrency(result.incomeTaxYellowUmbrellaSaving)}</span>
@@ -557,7 +557,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                         const val = e.target.value.replace(/,/g, '');
                                         if (!isNaN(Number(val))) setRefundInput(Number(val));
                                     }}
-                                    className="w-full p-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-right text-sm"
+                                    className="w-full p-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-right text-sm text-gray-900"
                                     placeholder="0"
                                 />
                             </div>
@@ -578,7 +578,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                     <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm h-full">
                         <h3 className="text-base font-bold text-gray-800 mb-3">2024/2025 종합소득세 세율표</h3>
                         <div className="overflow-x-auto">
-                            <table className="w-full text-[10px] text-left">
+                            <table className="w-full text-[10px] text-left text-gray-900">
                                 <thead className="bg-gray-50 text-gray-600 font-bold border-b">
                                     <tr>
                                         <th className="p-1.5">과세표준</th>
