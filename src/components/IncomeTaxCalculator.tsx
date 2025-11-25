@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Calculator, TrendingDown, Info, DollarSign } from 'lucide-react';
+import { Calculator, TrendingDown, Info, DollarSign, Users } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 const TAX_BRACKETS = [
@@ -24,6 +24,10 @@ interface IncomeTaxCalculatorProps {
     setDeductions: (value: number) => void;
     yellowUmbrella: number;
     setYellowUmbrella: (value: number) => void;
+    employeeCount: number;
+    setEmployeeCount: (value: number) => void;
+    employeeSalary: number; // Monthly salary per employee
+    setEmployeeSalary: (value: number) => void;
     yellowDuration: number;
     yellowInterestRate: number;
     onReset: () => void;
@@ -38,6 +42,10 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
     setDeductions,
     yellowUmbrella,
     setYellowUmbrella,
+    employeeCount,
+    setEmployeeCount,
+    employeeSalary,
+    setEmployeeSalary,
     yellowDuration,
     yellowInterestRate,
     onReset
@@ -55,14 +63,23 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
         nextLowerBracketRate: 0,
         taxSaving: 0, // 절세액
         compoundInterest: 0, // 복리 이자
+        laborCost: 0,
+        insuranceCost: 0,
     });
 
     useEffect(() => {
         calculate();
-    }, [revenue, expenses, deductions, yellowUmbrella, yellowDuration, yellowInterestRate]);
+    }, [revenue, expenses, deductions, yellowUmbrella, yellowDuration, yellowInterestRate, employeeCount, employeeSalary]);
 
     const calculate = () => {
-        const income = Math.max(revenue - expenses, 0); // 사업소득금액
+        // Calculate Labor Cost
+        // 4대보험 사업주 부담분 (약 10.5% 가정)
+        const insuranceRate = 0.105;
+        const annualSalary = employeeCount * employeeSalary * 12;
+        const insuranceCost = Math.round(annualSalary * insuranceRate);
+        const annualLaborCost = annualSalary + insuranceCost;
+
+        const income = Math.max(revenue - expenses - annualLaborCost, 0); // 사업소득금액 (인건비 차감 후)
 
         // 노란우산공제 한도 계산 (2025년 개정)
         let yellowUmbrellaLimit = 0;
@@ -125,7 +142,6 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
         let nextLowerBracketLimit = 0;
         let nextLowerBracketRate = 0;
 
-        // ... (Existing gap logic simplified/reused if possible, but keeping inline for safety)
         for (let i = 0; i < TAX_BRACKETS.length; i++) {
             if (taxableIncome <= TAX_BRACKETS[i].limit) {
                 if (i > 0) {
@@ -156,6 +172,8 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
             nextLowerBracketRate,
             taxSaving,
             compoundInterest,
+            laborCost: annualLaborCost,
+            insuranceCost,
         });
     };
 
@@ -164,12 +182,13 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
     };
 
     const dataPie = [
-        { name: '순수익(세후)', value: Math.max(revenue - expenses - result.totalTax, 0) },
+        { name: '순수익(세후)', value: Math.max(revenue - expenses - result.laborCost - result.totalTax, 0) },
         { name: '총 세금', value: result.totalTax },
         { name: '필요경비', value: expenses },
-    ];
+        { name: '인건비', value: result.laborCost },
+    ].filter(item => item.value > 0);
 
-    const COLORS = ['#0088FE', '#FF8042', '#00C49F'];
+    const COLORS = ['#0088FE', '#FF8042', '#00C49F', '#FFBB28'];
 
     return (
         <div className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg">
@@ -225,6 +244,51 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
                                     />
                                     <span className="absolute right-4 top-3 text-gray-400">원</span>
                                 </div>
+                                <p className="text-xs text-gray-500 mt-1">* 인건비 제외 (아래 별도 입력)</p>
+                            </div>
+
+                            {/* Employee Inputs */}
+                            <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                                <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                                    <Users className="w-4 h-4" /> 직원/인건비 정보
+                                </h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-600 mb-1">직원 수</label>
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                value={employeeCount}
+                                                onChange={(e) => setEmployeeCount(Number(e.target.value))}
+                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-8"
+                                                placeholder="0"
+                                            />
+                                            <span className="absolute right-3 top-2 text-gray-400 text-xs">명</span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-600 mb-1">1인당 월 급여</label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                value={employeeSalary === 0 ? '' : employeeSalary.toLocaleString()}
+                                                onChange={(e) => {
+                                                    const val = e.target.value.replace(/,/g, '');
+                                                    if (!isNaN(Number(val))) setEmployeeSalary(Number(val));
+                                                }}
+                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-8"
+                                                placeholder="0"
+                                            />
+                                            <span className="absolute right-3 top-2 text-gray-400 text-xs">원</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                {result.laborCost > 0 && (
+                                    <div className="text-xs text-indigo-600 mt-2 text-right space-y-1">
+                                        <p>4대보험(사업주분): +{formatCurrency(result.insuranceCost)}</p>
+                                        <p>연간 총 인건비: <strong>{formatCurrency(result.laborCost)}</strong></p>
+                                    </div>
+                                )}
                             </div>
 
                             <div>
