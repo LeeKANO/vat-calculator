@@ -362,110 +362,32 @@ const IncomeTaxCalculator: React.FC<IncomeTaxCalculatorProps> = ({
                     </div>
                 </div>
 
-                {/* Row 2: Result & Yellow Umbrella */}
-                <div className="grid md:grid-cols-2 gap-6 items-stretch">
-                    {/* Left: Result Section */}
-                    <div className="bg-green-50 p-6 rounded-xl border border-green-200 shadow-sm h-full">
-                        <h3 className="text-lg font-bold text-green-900 mb-4">계산 결과</h3>
-                        <div className="space-y-3 mb-5">
-                            <div className="flex justify-between text-sm text-gray-700">
-                                <span>과세표준</span>
-                                <span className="font-medium">{formatCurrency(result.taxableIncome)}</span>
-                            </div>
-                            {result.yellowUmbrellaDeduction > 0 && (
-                                <div className="flex justify-between text-sm text-yellow-700 font-bold bg-yellow-100/50 p-1.5 rounded">
-                                    <span>노란우산공제 적용</span>
-                                    <span>- {formatCurrency(result.yellowUmbrellaDeduction)}</span>
-                                </div>
-                            )}
-                            <div className="flex justify-between text-sm text-gray-700">
-                                <span>적용 세율</span>
-                                <span className="font-medium">{result.bracket.rate * 100}% (누진공제 {formatCurrency(result.bracket.deduction)})</span>
-                            </div>
-                            <div className="flex justify-between text-sm text-gray-700">
-                                <span>종합소득세</span>
-                                <span className="font-medium">{formatCurrency(result.incomeTax)}</span>
-                            </div>
-                            <div className="text-xs text-gray-400 text-right -mt-2">
-                                ({formatCurrency(result.taxableIncome)} × {result.bracket.rate * 100}%) - {formatCurrency(result.bracket.deduction)}
-                            </div>
-                            <div className="flex justify-between text-sm text-gray-700">
-                                <span>지방소득세 (10%)</span>
-                                <span className="font-medium">{formatCurrency(result.localTax)}</span>
-                            </div>
-                        </div>
-                        <div className="border-t border-green-200 pt-4 flex justify-between items-end">
-                            <span className="text-base text-gray-900 font-bold">총 예상 납부액</span>
-                            <span className="text-3xl font-extrabold text-green-600">{formatCurrency(result.totalTax)}</span>
-                        </div>
-
-                        {/* Yellow Umbrella Benefits Box */}
-                        {result.yellowUmbrellaDeduction > 0 && (
-                            <div className="mt-4 bg-yellow-100 p-4 rounded-lg border border-yellow-200 shadow-sm">
-                                <h4 className="text-sm font-bold text-yellow-800 mb-2 flex items-center gap-1">
-                                    <DollarSign className="w-4 h-4" />
-                                    노란우산공제 혜택 ({yellowDuration}년 납입 기준)
-                                </h4>
-                                <div className="space-y-2">
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-yellow-900">절세 효과 (매년)</span>
-                                        <span className="font-bold text-blue-600">+{formatCurrency(result.taxSaving)}</span>
-                                    </div>
-                                    <div className="flex justify-between text-sm">
-                                        <span className="text-yellow-900">예상 복리 이자 ({yellowInterestRate}%)</span>
-                                        <span className="font-bold text-blue-600">+{formatCurrency(result.compoundInterest)}</span>
-                                    </div>
-                                    <div className="border-t border-yellow-200 pt-2 mt-2 flex justify-between text-sm font-bold">
-                                        <span className="text-yellow-900">총 혜택 (절세x{yellowDuration}년 + 이자)</span>
-                                        <span className="text-red-600">+{formatCurrency(result.taxSaving * yellowDuration + result.compoundInterest)}</span>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* Optimization Tip inside Result Box */}
-                        {result.nextLowerBracketGap > 0 && (
-                            <div className="mt-4 bg-white p-3 rounded-lg border border-indigo-100 shadow-sm">
-                                <div className="flex items-start gap-2">
-                                    <TrendingDown className="w-5 h-5 text-indigo-600 flex-shrink-0 mt-0.5" />
-                                    <div>
-                                        <p className="text-xs text-indigo-800 leading-relaxed">
-                                            <span className="font-bold text-indigo-600 bg-indigo-50 px-1 rounded">{formatCurrency(result.nextLowerBracketGap)}</span> 더 비용 처리 시,
-                                            세율 <span className="font-bold">{result.bracket.rate * 100}%</span> → <span className="font-bold text-indigo-600">{result.nextLowerBracketRate * 100}%</span> 인하 효과!
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Right: Tax Rates Table */}
-                    <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm h-full">
-                        <h3 className="text-lg font-bold text-gray-700 mb-4">2024/2025 종합소득세 세율표</h3>
-                        <div className="overflow-x-auto bg-white rounded-lg border border-gray-200">
-                            <table className="w-full text-xs text-left text-gray-500">
-                                <thead className="text-xs text-gray-700 uppercase bg-gray-100">
-                                    <tr>
-                                        <th scope="col" className="px-3 py-2 font-bold">과세표준</th>
-                                        <th scope="col" className="px-3 py-2 font-bold">세율</th>
-                                        <th scope="col" className="px-3 py-2 font-bold">누진공제</th>
+                {/* Row 2: Tax Rates Table (Full Width) */}
+                <div className="bg-gray-50 p-6 rounded-xl border border-gray-200 shadow-sm h-full">
+                    <h3 className="text-lg font-bold text-gray-700 mb-4">2024/2025 종합소득세 세율표</h3>
+                    <div className="overflow-x-auto bg-white rounded-lg border border-gray-200">
+                        <table className="w-full text-xs text-left text-gray-500">
+                            <thead className="text-xs text-gray-700 uppercase bg-gray-100">
+                                <tr>
+                                    <th scope="col" className="px-3 py-2 font-bold">과세표준</th>
+                                    <th scope="col" className="px-3 py-2 font-bold">세율</th>
+                                    <th scope="col" className="px-3 py-2 font-bold">누진공제</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {TAX_BRACKETS.map((bracket, index) => (
+                                    <tr key={index} className={`border-b last:border-0 ${result.bracket.rate === bracket.rate ? 'bg-green-50 font-bold text-green-800' : ''}`}>
+                                        <td className="px-3 py-2">
+                                            {index === 0 ? `${formatCurrency(bracket.limit)} 이하` :
+                                                index === TAX_BRACKETS.length - 1 ? `${formatCurrency(TAX_BRACKETS[index - 1].limit)} 초과` :
+                                                    `${formatCurrency(TAX_BRACKETS[index - 1].limit)} ~ ${formatCurrency(bracket.limit)}`}
+                                        </td>
+                                        <td className="px-3 py-2">{bracket.rate * 100}%</td>
+                                        <td className="px-3 py-2">{formatCurrency(bracket.deduction)}</td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {TAX_BRACKETS.map((bracket, index) => (
-                                        <tr key={index} className={`border-b last:border-0 ${result.bracket.rate === bracket.rate ? 'bg-green-50 font-bold text-green-800' : ''}`}>
-                                            <td className="px-3 py-2">
-                                                {index === 0 ? `${formatCurrency(bracket.limit)} 이하` :
-                                                    index === TAX_BRACKETS.length - 1 ? `${formatCurrency(TAX_BRACKETS[index - 1].limit)} 초과` :
-                                                        `${formatCurrency(TAX_BRACKETS[index - 1].limit)} ~ ${formatCurrency(bracket.limit)}`}
-                                            </td>
-                                            <td className="px-3 py-2">{bracket.rate * 100}%</td>
-                                            <td className="px-3 py-2">{formatCurrency(bracket.deduction)}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
