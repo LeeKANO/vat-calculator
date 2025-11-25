@@ -21,6 +21,11 @@ export default function Home() {
   const [globalRevenue, setGlobalRevenue] = useState<number>(0);
   const [globalExpenses, setGlobalExpenses] = useState<number>(0);
   const [globalCardSpending, setGlobalCardSpending] = useState<number>(0);
+  const [globalEmployeeCount, setGlobalEmployeeCount] = useState<number>(0);
+  const [globalEmployeeSalary, setGlobalEmployeeSalary] = useState<number>(0);
+  const [globalFreelancerCount, setGlobalFreelancerCount] = useState<number>(0);
+  const [globalFreelancerPayment, setGlobalFreelancerPayment] = useState<number>(0);
+  const [globalYellowUmbrella, setGlobalYellowUmbrella] = useState<number>(0);
 
   // VATCalculator specific states
   const [vatMode, setVatMode] = useState<'general' | 'simplified'>('general');
@@ -30,7 +35,6 @@ export default function Home() {
 
   // IncomeTaxCalculator specific states
   const [incomeDeductions, setIncomeDeductions] = useState<number>(1500000);
-  const [incomeYellowUmbrella, setIncomeYellowUmbrella] = useState<number>(0);
 
   // YellowUmbrellaGuide states
   const [yellowMonthlyPayment, setYellowMonthlyPayment] = useState<number>(250000);
@@ -39,9 +43,6 @@ export default function Home() {
 
   // TaxSavingCalculator specific states
   const [savingVatMode, setSavingVatMode] = useState<'general' | 'simplified'>('general');
-  const [savingYellowUmbrella, setSavingYellowUmbrella] = useState<number>(0);
-  const [savingEmployeeCount, setSavingEmployeeCount] = useState<number>(0);
-  const [savingEmployeeSalary, setSavingEmployeeSalary] = useState<number>(0);
 
   // Reset functions
   const resetVAT = () => {
@@ -57,7 +58,11 @@ export default function Home() {
     setGlobalRevenue(0);
     setGlobalExpenses(0);
     setIncomeDeductions(1500000);
-    setIncomeYellowUmbrella(0);
+    setGlobalYellowUmbrella(0);
+    setGlobalEmployeeCount(0);
+    setGlobalEmployeeSalary(0);
+    setGlobalFreelancerCount(0);
+    setGlobalFreelancerPayment(0);
   };
 
   const resetYellow = () => {
@@ -70,9 +75,11 @@ export default function Home() {
     setGlobalRevenue(0);
     setGlobalExpenses(0);
     setSavingVatMode('general');
-    setSavingYellowUmbrella(0);
-    setSavingEmployeeCount(0);
-    setSavingEmployeeSalary(0);
+    setGlobalYellowUmbrella(0);
+    setGlobalEmployeeCount(0);
+    setGlobalEmployeeSalary(0);
+    setGlobalFreelancerCount(0);
+    setGlobalFreelancerPayment(0);
     setGlobalCardSpending(0);
   };
 
@@ -227,8 +234,12 @@ export default function Home() {
             setExpenses={setGlobalExpenses}
             deductions={incomeDeductions}
             setDeductions={setIncomeDeductions}
-            yellowUmbrella={incomeYellowUmbrella}
-            setYellowUmbrella={setIncomeYellowUmbrella}
+            yellowUmbrella={globalYellowUmbrella}
+            setYellowUmbrella={setGlobalYellowUmbrella}
+            employeeCount={globalEmployeeCount}
+            setEmployeeCount={setGlobalEmployeeCount}
+            employeeSalary={globalEmployeeSalary}
+            setEmployeeSalary={setGlobalEmployeeSalary}
             yellowDuration={yellowDuration}
             yellowInterestRate={yellowInterestRate}
             onReset={resetIncome}
@@ -241,12 +252,16 @@ export default function Home() {
             setExpenses={setGlobalExpenses}
             vatMode={savingVatMode}
             setVatMode={setSavingVatMode}
-            yellowUmbrella={savingYellowUmbrella}
-            setYellowUmbrella={setSavingYellowUmbrella}
-            employeeCount={savingEmployeeCount}
-            setEmployeeCount={setSavingEmployeeCount}
-            employeeSalary={savingEmployeeSalary}
-            setEmployeeSalary={setSavingEmployeeSalary}
+            yellowUmbrella={globalYellowUmbrella}
+            setYellowUmbrella={setGlobalYellowUmbrella}
+            employeeCount={globalEmployeeCount}
+            setEmployeeCount={setGlobalEmployeeCount}
+            employeeSalary={globalEmployeeSalary}
+            setEmployeeSalary={setGlobalEmployeeSalary}
+            freelancerCount={globalFreelancerCount}
+            setFreelancerCount={setGlobalFreelancerCount}
+            freelancerPayment={globalFreelancerPayment}
+            setFreelancerPayment={setGlobalFreelancerPayment}
             cardSpending={globalCardSpending}
             setCardSpending={setGlobalCardSpending}
             onReset={resetSaving}
