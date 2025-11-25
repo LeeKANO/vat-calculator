@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Calculator, TrendingDown, DollarSign, PiggyBank, ArrowRight, CheckCircle, Info, Users, CreditCard } from 'lucide-react';
+import { Calculator, TrendingDown, DollarSign, PiggyBank, ArrowRight, CheckCircle, Info, Users, CreditCard, Table } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
-// --- Shared Constants & Logic (Duplicated from other components for independence) ---
+// --- Shared Constants & Logic ---
 
 const TAX_BRACKETS = [
     { limit: 14000000, rate: 0.06, deduction: 0 },
@@ -30,6 +30,10 @@ interface TaxSavingCalculatorProps {
     setEmployeeCount: (value: number) => void;
     employeeSalary: number; // Monthly salary per employee
     setEmployeeSalary: (value: number) => void;
+    freelancerCount: number;
+    setFreelancerCount: (value: number) => void;
+    freelancerPayment: number; // Monthly payment per freelancer
+    setFreelancerPayment: (value: number) => void;
     cardSpending: number; // Monthly credit card spending
     setCardSpending: (value: number) => void;
     onReset: () => void;
@@ -48,6 +52,10 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
     setEmployeeCount,
     employeeSalary,
     setEmployeeSalary,
+    freelancerCount,
+    setFreelancerCount,
+    freelancerPayment,
+    setFreelancerPayment,
     cardSpending,
     setCardSpending,
     onReset
@@ -63,6 +71,8 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
         netIncome: 0,
         creditCardDeduction: 0,
         laborCost: 0,
+        insuranceCost: 0, // 4대보험 (사업주 부담분)
+        freelancerCost: 0, // 3.3% 프리랜서 비용
         cardBenefit: 0,
         // Detailed Breakdowns
         cardPoints: 0,
@@ -75,9 +85,25 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
         actualYellowUmbrellaDeduction: 0,
     });
 
+    // State for VAT Refund Calculator
+    const [refundInput, setRefundInput] = useState<number>(expenses);
+    const [refundAmount, setRefundAmount] = useState<number>(0);
+
     useEffect(() => {
         calculate();
-    }, [revenue, expenses, vatMode, yellowUmbrella, employeeCount, employeeSalary, cardSpending]);
+    }, [revenue, expenses, vatMode, yellowUmbrella, employeeCount, employeeSalary, freelancerCount, freelancerPayment, cardSpending]);
+
+    useEffect(() => {
+        if (expenses > 0 && refundInput === 0) {
+            setRefundInput(expenses);
+        }
+    }, [expenses]);
+
+    useEffect(() => {
+        const supply = Math.round(refundInput / 1.1);
+        const vat = refundInput - supply;
+        setRefundAmount(vat);
+    }, [refundInput]);
 
     const calculate = () => {
         // --- 1. VAT Calculation ---
@@ -87,22 +113,19 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
         let vatPurchaseDeduction = 0;
 
         if (vatMode === 'general') {
-            // General: Revenue Tax - Purchase Tax
             const revenueSupply = Math.round(revenue / 1.1);
             const revenueTax = revenue - revenueSupply;
             const purchaseSupply = Math.round(expenses / 1.1);
             const purchaseTax = expenses - purchaseSupply;
 
             vat = Math.max(revenueTax - purchaseTax, 0);
-            vatSaving = purchaseTax; // Input tax deduction is the saving
+            vatSaving = purchaseTax;
             vatPurchaseDeduction = purchaseTax;
         } else {
-            // Simplified: Revenue * IndustryRate * 10% (Assume 15% rate for retail/food as default average)
             const industryRate = 0.15;
             const taxBeforeDeduction = Math.round(revenue * industryRate * 0.1);
-            const purchaseDeduction = Math.round(expenses * 0.005); // 0.5% deduction
+            const purchaseDeduction = Math.round(expenses * 0.005);
 
-            // Credit Card Sales Deduction (Assume 90% of revenue is card/cash receipt for simulation)
             const estimatedCreditCardSales = revenue * 0.9;
             creditCardDeduction = Math.min(Math.round(estimatedCreditCardSales * 0.013), 10000000);
 
@@ -112,27 +135,29 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
         }
 
         // --- 2. Income Tax Calculation ---
-        // Calculate Labor Cost (Not subject to VAT deduction, but deductible for Income Tax)
-        const annualLaborCost = employeeCount * employeeSalary * 12;
+        // Regular Employees (4 Major Insurance)
+        const insuranceRate = 0.105;
+        const annualSalary = employeeCount * employeeSalary * 12;
+        const insuranceCost = Math.round(annualSalary * insuranceRate);
 
-        // Total Deductible Expenses for Income Tax = Operating Expenses + Labor Cost
-        // Note: 'expenses' input is assumed to be VAT-inclusive operating expenses.
-        // For Income Tax, we deduct the full expense amount (if simplified) or supply price (if general, but simplified logic often uses total).
-        // To keep it simple and consistent with previous logic:
-        // We treat 'expenses' as fully deductible.
+        // Freelancers (3.3% Business Income)
+        const annualFreelancerCost = freelancerCount * freelancerPayment * 12;
+
+        const annualLaborCost = annualSalary + insuranceCost + annualFreelancerCost;
 
         let income = Math.max(revenue - expenses - annualLaborCost, 0);
 
-        // Yellow Umbrella Deduction Limit
+        // Yellow Umbrella Deduction Limit (2025)
         let yellowUmbrellaLimit = 0;
-        if (income <= 40000000) yellowUmbrellaLimit = 5000000; // 40M or less -> 5M limit
-        else if (income <= 100000000) yellowUmbrellaLimit = 3000000; // 40M ~ 100M -> 3M limit
-        else yellowUmbrellaLimit = 2000000; // Over 100M -> 2M limit
+        if (income <= 40000000) yellowUmbrellaLimit = 6000000;
+        else if (income <= 60000000) yellowUmbrellaLimit = 5000000;
+        else if (income <= 100000000) yellowUmbrellaLimit = 4000000;
+        else yellowUmbrellaLimit = 2000000;
 
         const annualYellowUmbrella = yellowUmbrella * 12;
         const actualYellowUmbrellaDeduction = Math.min(annualYellowUmbrella, yellowUmbrellaLimit);
 
-        const basicDeduction = 1500000; // Standard basic deduction
+        const basicDeduction = 1500000;
 
         const calculateIncomeTax = (deduction: number) => {
             const taxable = Math.max(income - basicDeduction - deduction, 0);
@@ -153,24 +178,18 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
 
         const incomeTaxSaving = noSavingIncomeTax - currentIncomeTax;
 
-        // --- 3. Card Benefit Calculation (Based on Samsung BIZ THE iD. PLATINUM logic for simulation) ---
+        // --- 3. Card Benefit Calculation ---
         const annualCardSpend = cardSpending * 12;
         const cardPoints = annualCardSpend * 0.012;
-
-        // Discount Logic: 3% on 20% of spend, capped at 20k/month
         const cardDiscountMonthly = Math.min(cardSpending * 0.2 * 0.03, 20000);
         const cardDiscount = cardDiscountMonthly * 12;
-
         const cardGift = 150000;
         const cardAnnualFee = 240000;
-
-        // Total Card Benefit (Net)
         const cardBenefit = Math.max(cardPoints + cardDiscount + cardGift - cardAnnualFee, 0);
 
         // --- 4. Total ---
         const totalTax = vat + currentIncomeTax;
         const totalSaving = vatSaving + incomeTaxSaving + cardBenefit;
-        // Net Income = Revenue - Expenses - Labor - Tax + Card Benefit
         const netIncome = revenue - expenses - annualLaborCost - totalTax + cardBenefit;
 
         setResult({
@@ -184,8 +203,9 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
             netIncome,
             creditCardDeduction,
             laborCost: annualLaborCost,
+            insuranceCost,
+            freelancerCost: annualFreelancerCost,
             cardBenefit,
-            // Breakdowns
             cardPoints,
             cardDiscount,
             cardGift,
@@ -201,51 +221,481 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
         return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW', maximumFractionDigits: 0 }).format(value);
     };
 
-    const dataPie = [
-        { name: '순수익', value: result.netIncome },
-        { name: '총 세금', value: result.totalTax },
-        { name: '운영비용', value: expenses },
-        { name: '인건비', value: result.laborCost },
-    ].filter(item => item.value > 0);
-
-    const COLORS = ['#0088FE', '#FF8042', '#00C49F', '#FFBB28'];
-
     return (
-        <div className="max-w-4xl mx-auto p-6 bg-white rounded-xl shadow-lg">
-            <div className="flex items-center justify-between mb-8">
-                <h1 className="text-3xl font-bold text-gray-800 flex items-center gap-2">
-                    <PiggyBank className="w-8 h-8 text-green-600" />
+        <div className="max-w-4xl mx-auto p-4 bg-white rounded-xl shadow-lg">
+            <div className="flex items-center justify-between mb-6">
+                <h1 className="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                    <PiggyBank className="w-6 h-6 text-green-600" />
                     통합 절세 계산기
                 </h1>
                 <button
                     onClick={onReset}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                    className="px-3 py-1.5 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
                 >
                     초기화
                 </button>
             </div>
 
-            <div className="space-y-8">
-                {/* Summary Cards */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="bg-red-50 p-6 rounded-xl border border-red-100">
-                        <h3 className="text-sm font-bold text-red-800 mb-2">총 예상 세금</h3>
-                        <p className="text-2xl font-extrabold text-red-600">{formatCurrency(result.totalTax)}</p>
-                        <div className="text-xs text-red-500 mt-2 space-y-1">
-                            <div className="flex justify-between">
-                                <span>부가가치세:</span>
-                                <span>{formatCurrency(result.vat)}</span>
+            <div className="space-y-4">
+                {/* Top Section: Basic Info & Calculation Result (Equal Height) */}
+                <div className="grid md:grid-cols-2 gap-4 items-stretch">
+                    {/* Left: Basic Info Inputs */}
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm h-full">
+                        <h3 className="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                            <Calculator className="w-4 h-4" /> 기본 정보 입력
+                        </h3>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 mb-1">연간 매출액 (부가세 포함)</label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={revenue === 0 ? '' : revenue.toLocaleString()}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/,/g, '');
+                                            if (!isNaN(Number(val))) setRevenue(Number(val));
+                                        }}
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold text-sm"
+                                        placeholder="0"
+                                    />
+                                    <span className="absolute right-3 top-2 text-gray-400 text-xs">원</span>
+                                </div>
                             </div>
-                            <div className="flex justify-between">
-                                <span>종합소득세:</span>
-                                <span>{formatCurrency(result.incomeTax)}</span>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 mb-1">연간 지출액 (매입+경비)</label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={expenses === 0 ? '' : expenses.toLocaleString()}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/,/g, '');
+                                            if (!isNaN(Number(val))) setExpenses(Number(val));
+                                        }}
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold text-sm"
+                                        placeholder="0"
+                                    />
+                                    <span className="absolute right-3 top-2 text-gray-400 text-xs">원</span>
+                                </div>
+                                <p className="text-[10px] text-gray-500 mt-0.5">* 인건비 제외 (아래 별도 입력)</p>
+                            </div>
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 mb-1">사업자 유형</label>
+                                <div className="flex gap-2">
+                                    <button
+                                        onClick={() => setVatMode('general')}
+                                        className={`flex-1 py-1.5 rounded-lg font-bold text-xs border ${vatMode === 'general' ? 'bg-green-50 border-green-500 text-green-700' : 'border-gray-200 text-gray-500'}`}
+                                    >
+                                        일반과세자
+                                    </button>
+                                    <button
+                                        onClick={() => setVatMode('simplified')}
+                                        className={`flex-1 py-1.5 rounded-lg font-bold text-xs border ${vatMode === 'simplified' ? 'bg-green-50 border-green-500 text-green-700' : 'border-gray-200 text-gray-500'}`}
+                                    >
+                                        간이과세자
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Employee & Freelancer Inputs */}
+                            <div className="bg-gray-50 p-3 rounded-lg border border-gray-200 space-y-3">
+                                {/* Regular Employees */}
+                                <div>
+                                    <h4 className="text-xs font-bold text-gray-800 mb-2 flex items-center gap-1">
+                                        <Users className="w-3 h-3" /> 정규직 직원 (4대보험)
+                                    </h4>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-gray-600 mb-1">직원 수</label>
+                                            <div className="relative">
+                                                <input
+                                                    type="number"
+                                                    value={employeeCount}
+                                                    onChange={(e) => setEmployeeCount(Number(e.target.value))}
+                                                    className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs"
+                                                    placeholder="0"
+                                                />
+                                                <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">명</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-gray-600 mb-1">1인당 월 급여</label>
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    value={employeeSalary === 0 ? '' : employeeSalary.toLocaleString()}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.replace(/,/g, '');
+                                                        if (!isNaN(Number(val))) setEmployeeSalary(Number(val));
+                                                    }}
+                                                    className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs"
+                                                    placeholder="0"
+                                                />
+                                                <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">원</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Freelancers */}
+                                <div className="pt-2 border-t border-gray-200">
+                                    <h4 className="text-xs font-bold text-gray-800 mb-2 flex items-center gap-1">
+                                        <Users className="w-3 h-3" /> 3.3% 사업소득자 (프리랜서)
+                                    </h4>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-gray-600 mb-1">인원 수</label>
+                                            <div className="relative">
+                                                <input
+                                                    type="number"
+                                                    value={freelancerCount}
+                                                    onChange={(e) => setFreelancerCount(Number(e.target.value))}
+                                                    className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs"
+                                                    placeholder="0"
+                                                />
+                                                <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">명</span>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block text-[10px] font-bold text-gray-600 mb-1">1인당 월 지급액</label>
+                                            <div className="relative">
+                                                <input
+                                                    type="text"
+                                                    value={freelancerPayment === 0 ? '' : freelancerPayment.toLocaleString()}
+                                                    onChange={(e) => {
+                                                        const val = e.target.value.replace(/,/g, '');
+                                                        if (!isNaN(Number(val))) setFreelancerPayment(Number(val));
+                                                    }}
+                                                    className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs"
+                                                    placeholder="0"
+                                                />
+                                                <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">원</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {result.laborCost > 0 && (
+                                    <div className="text-[10px] text-indigo-600 mt-2 text-right space-y-0.5 pt-2 border-t border-gray-200">
+                                        {result.insuranceCost > 0 && <p>4대보험(사업주분): +{formatCurrency(result.insuranceCost)}</p>}
+                                        {result.freelancerCost > 0 && <p>프리랜서 총 지급액: +{formatCurrency(result.freelancerCost)}</p>}
+                                        <p>연간 총 인건비: <strong>{formatCurrency(result.laborCost)}</strong></p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Card Spending Input */}
+                            <div className="bg-blue-50 p-3 rounded-lg border border-blue-200">
+                                <h4 className="text-xs font-bold text-gray-800 mb-2 flex items-center gap-1">
+                                    <CreditCard className="w-3 h-3" /> 사업자 카드 사용
+                                </h4>
+                                <div>
+                                    <label className="block text-[10px] font-bold text-gray-600 mb-1">월 평균 카드 사용금액</label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            value={cardSpending === 0 ? '' : cardSpending.toLocaleString()}
+                                            onChange={(e) => {
+                                                const val = e.target.value.replace(/,/g, '');
+                                                if (!isNaN(Number(val))) setCardSpending(Number(val));
+                                            }}
+                                            className="w-full p-1.5 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-right pr-6 text-xs"
+                                            placeholder="0"
+                                        />
+                                        <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">원</span>
+                                    </div>
+                                    {result.cardBenefit > 0 && (
+                                        <div className="mt-2 bg-white p-2 rounded-lg border border-blue-100">
+                                            <p className="text-[10px] font-bold text-blue-800 mb-1">삼성카드 BIZ THE iD. PLATINUM 기준</p>
+                                            <div className="space-y-0.5 text-[10px] text-gray-600">
+                                                <div className="flex justify-between">
+                                                    <span>기프트:</span>
+                                                    <span className="text-blue-600">+{formatCurrency(result.cardGift)}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>포인트:</span>
+                                                    <span className="text-blue-600">+{formatCurrency(result.cardPoints)}</span>
+                                                </div>
+                                                <div className="flex justify-between">
+                                                    <span>할인:</span>
+                                                    <span className="text-blue-600">+{formatCurrency(result.cardDiscount)}</span>
+                                                </div>
+                                                <div className="flex justify-between pt-0.5 border-t border-gray-100">
+                                                    <span>연회비:</span>
+                                                    <span className="text-red-500">-{formatCurrency(result.cardAnnualFee)}</span>
+                                                </div>
+                                                <div className="flex justify-between pt-0.5 border-t border-blue-100 font-bold">
+                                                    <span className="text-blue-800">총 혜택:</span>
+                                                    <span className="text-blue-600">{formatCurrency(result.cardBenefit)}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-xs font-bold text-gray-700 mb-1">노란우산공제 월 납입액</label>
+                                <div className="relative">
+                                    <input
+                                        type="text"
+                                        value={yellowUmbrella === 0 ? '' : yellowUmbrella.toLocaleString()}
+                                        onChange={(e) => {
+                                            const val = e.target.value.replace(/,/g, '');
+                                            if (!isNaN(Number(val))) setYellowUmbrella(Number(val));
+                                        }}
+                                        className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none font-bold text-sm"
+                                        placeholder="0"
+                                    />
+                                    <span className="absolute right-3 top-2 text-gray-400 text-xs">원</span>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <div className="bg-green-50 p-6 rounded-xl border border-green-100">
-                        <h3 className="text-sm font-bold text-green-800 mb-2">총 절세 효과</h3>
-                        <p className="text-2xl font-extrabold text-green-600">{formatCurrency(result.totalSaving)}</p>
-                        <div className="text-xs text-green-600 mt-2 space-y-1">
+
+                    {/* Right: Calculation Result (Equal Height) */}
+                    <div className="bg-green-50 p-4 rounded-xl border border-green-200 h-full flex flex-col">
+                        <h3 className="text-base font-bold text-green-800 mb-3">계산 결과</h3>
+                        <div className="space-y-2 text-sm flex-grow">
+                            <div className="flex justify-between">
+                                <span className="text-gray-600">과세표준</span>
+                                <span className="font-bold text-gray-900">
+                                    {formatCurrency(Math.max(revenue - expenses - result.laborCost - 1500000 - result.actualYellowUmbrellaDeduction, 0))}
+                                </span>
+                            </div>
+                            <div className="flex justify-between text-green-700">
+                                <span>노란우산공제 적용</span>
+                                <span className="font-bold">-{formatCurrency(result.actualYellowUmbrellaDeduction)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span className="text-gray-600">적용 세율</span>
+                                <span className="font-bold text-gray-900">
+                                    {(() => {
+                                        const taxable = Math.max(revenue - expenses - result.laborCost - 1500000 - result.actualYellowUmbrellaDeduction, 0);
+                                        const bracket = TAX_BRACKETS.find(b => taxable <= b.limit) || TAX_BRACKETS[TAX_BRACKETS.length - 1];
+                                        return `${(bracket.rate * 100).toFixed(0)}% (누진공제 ${formatCurrency(bracket.deduction)})`;
+                                    })()}
+                                </span>
+                            </div>
+                            <div className="pt-2 border-t border-green-200">
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">종합소득세</span>
+                                    <span className="font-bold text-gray-900">{formatCurrency(Math.round(result.incomeTax / 1.1))}</span>
+                                </div>
+                                <div className="flex justify-between">
+                                    <span className="text-gray-600">지방소득세 (10%)</span>
+                                    <span className="font-bold text-gray-900">{formatCurrency(result.incomeTax - Math.round(result.incomeTax / 1.1))}</span>
+                                </div>
+                            </div>
+                            <div className="flex justify-between items-center pt-2 border-t-2 border-green-200">
+                                <span className="font-bold text-green-900">총 예상 납부액</span>
+                                <span className="text-xl font-extrabold text-green-600">{formatCurrency(result.totalTax)}</span>
+                            </div>
+                        </div>
+
+                        {/* Yellow Umbrella Benefit Box */}
+                        <div className="mt-3 bg-yellow-100 p-3 rounded-lg border border-yellow-200">
+                            <h4 className="text-xs font-bold text-yellow-800 mb-1.5 flex items-center gap-1">
+                                <DollarSign className="w-3 h-3" /> 노란우산공제 혜택 (10년 납입 기준)
+                            </h4>
+                            <div className="space-y-1 text-xs">
+                                <div className="flex justify-between text-blue-700">
+                                    <span>절세 효과 (매년)</span>
+                                    <span className="font-bold">+{formatCurrency(result.incomeTaxYellowUmbrellaSaving)}</span>
+                                </div>
+                                <div className="flex justify-between text-blue-700">
+                                    <span>예상 복리 이자 (3.3%)</span>
+                                    <span className="font-bold">
+                                        +{formatCurrency(Math.round(result.actualYellowUmbrellaDeduction * 10 * 0.18))}
+                                    </span>
+                                </div>
+                                <div className="pt-1.5 border-t border-yellow-300 flex justify-between font-bold text-red-600">
+                                    <span>총 혜택 (절세x10년 + 이자)</span>
+                                    <span>
+                                        +{formatCurrency((result.incomeTaxYellowUmbrellaSaving * 10) + Math.round(result.actualYellowUmbrellaDeduction * 10 * 0.18))}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Marginal Rate Tip */}
+                        {(() => {
+                            const taxable = Math.max(revenue - expenses - result.laborCost - 1500000 - result.actualYellowUmbrellaDeduction, 0);
+                            const currentBracketIndex = TAX_BRACKETS.findIndex(b => taxable <= b.limit);
+                            if (currentBracketIndex > 0) {
+                                const prevBracket = TAX_BRACKETS[currentBracketIndex - 1];
+                                const diff = taxable - prevBracket.limit;
+                                if (diff > 0 && diff < 30000000) {
+                                    return (
+                                        <div className="mt-3 bg-white p-2 rounded-lg border border-green-200 text-[10px] text-green-700 flex items-start gap-1.5">
+                                            <TrendingDown className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                            <p>
+                                                <strong>{formatCurrency(diff)}</strong> 더 비용 처리 시, 세율 <strong>{(TAX_BRACKETS[currentBracketIndex].rate * 100).toFixed(0)}% → {(prevBracket.rate * 100).toFixed(0)}%</strong> 인하 효과!
+                                            </p>
+                                        </div>
+                                    );
+                                }
+                            }
+                            return null;
+                        })()}
+                    </div>
+                </div>
+
+                {/* Middle Section: 4 Info Cards Grid (Equal Height) */}
+                <div className="grid md:grid-cols-2 gap-4 items-stretch">
+                    {/* 1. VAT Refund Calculator */}
+                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 h-full">
+                        <h3 className="text-base font-bold text-blue-800 mb-3 flex items-center gap-2">
+                            <DollarSign className="w-4 h-4" /> 부가세 환급금 계산기 (단순 계산)
+                        </h3>
+                        <div className="space-y-3">
+                            <div>
+                                <label className="block text-xs font-bold text-blue-700 mb-1">지출 금액 (부가세 포함)</label>
+                                <input
+                                    type="text"
+                                    value={refundInput === 0 ? '' : refundInput.toLocaleString()}
+                                    onChange={(e) => {
+                                        const val = e.target.value.replace(/,/g, '');
+                                        if (!isNaN(Number(val))) setRefundInput(Number(val));
+                                    }}
+                                    className="w-full p-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-right text-sm"
+                                    placeholder="0"
+                                />
+                            </div>
+                            <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                                <span className="text-sm text-blue-700">예상 환급금 (부가세액)</span>
+                                <span className="text-lg font-bold text-blue-600">{formatCurrency(refundAmount)}</span>
+                            </div>
+                            <div className="bg-white p-2 rounded-lg border border-blue-100 text-[10px] text-gray-600 space-y-0.5">
+                                <p className="font-bold text-blue-800 mb-0.5">ⓘ 환급 시기 안내</p>
+                                <p>• <span className="text-blue-600 font-bold">일반 환급:</span> 확정신고 기한 후 <span className="text-red-500 font-bold">30일 이내</span></p>
+                                <p>• <span className="text-blue-600 font-bold">조기 환급:</span> 신고 기한 후 <span className="text-red-500 font-bold">15일 이내</span> (수출, 설비투자 등)</p>
+                                <p className="text-gray-400 mt-0.5">* 일반과세자만 환급 가능 (간이과세자 불가)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 2. 2024/2025 Income Tax Rates Table */}
+                    <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm h-full">
+                        <h3 className="text-base font-bold text-gray-800 mb-3">2024/2025 종합소득세 세율표</h3>
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-[10px] text-left">
+                                <thead className="bg-gray-50 text-gray-600 font-bold border-b">
+                                    <tr>
+                                        <th className="p-1.5">과세표준</th>
+                                        <th className="p-1.5">세율</th>
+                                        <th className="p-1.5 text-right">누진공제</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-gray-100">
+                                    {TAX_BRACKETS.map((bracket, index) => (
+                                        <tr key={index}>
+                                            <td className="p-1.5">
+                                                {index === 0 ? `${formatCurrency(bracket.limit)} 이하` :
+                                                    index === TAX_BRACKETS.length - 1 ? `${formatCurrency(TAX_BRACKETS[index - 1].limit)} 초과` :
+                                                        `${formatCurrency(TAX_BRACKETS[index - 1].limit)} ~ ${formatCurrency(bracket.limit)}`}
+                                            </td>
+                                            <td className="p-1.5">{(bracket.rate * 100).toFixed(0)}%</td>
+                                            <td className="p-1.5 text-right">{formatCurrency(bracket.deduction)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* 3. 2025 Yellow Umbrella Limits */}
+                    <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200 h-full">
+                        <h3 className="text-base font-bold text-yellow-800 mb-3 flex items-center gap-2">
+                            <Info className="w-4 h-4" /> 2025년 노란우산공제 한도
+                        </h3>
+                        <div className="overflow-x-auto bg-white rounded-lg border border-yellow-100">
+                            <table className="w-full text-[10px] text-left">
+                                <thead className="bg-yellow-100 text-yellow-800 font-bold border-b border-yellow-200">
+                                    <tr>
+                                        <th className="p-1.5">사업소득금액</th>
+                                        <th className="p-1.5 text-right">최대 공제 한도</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-yellow-50">
+                                    <tr>
+                                        <td className="p-1.5">4천만원 이하</td>
+                                        <td className="p-1.5 text-right font-bold text-yellow-700">600만원</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-1.5">4천만원 ~ 6천만원</td>
+                                        <td className="p-1.5 text-right font-bold text-yellow-700">500만원</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-1.5">6천만원 ~ 1억원</td>
+                                        <td className="p-1.5 text-right font-bold text-yellow-700">400만원</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-1.5">1억원 초과</td>
+                                        <td className="p-1.5 text-right font-bold text-yellow-700">200만원</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* 4. Major Deductible Expenses */}
+                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-200 h-full">
+                        <h3 className="text-base font-bold text-blue-800 mb-3 flex items-center gap-2">
+                            <DollarSign className="w-4 h-4" /> 주요 비용처리 가능 항목
+                        </h3>
+                        <div className="overflow-x-auto bg-white rounded-lg border border-blue-100">
+                            <table className="w-full text-[10px] text-left">
+                                <thead className="bg-blue-100 text-blue-800 font-bold border-b border-blue-200">
+                                    <tr>
+                                        <th className="p-1.5 w-16">구분</th>
+                                        <th className="p-1.5">상세 항목</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-blue-50">
+                                    <tr>
+                                        <td className="p-1.5 font-bold text-blue-700">인건비</td>
+                                        <td className="p-1.5 text-gray-600">급여, 임금, 퇴직금, 일용직 급여, 4대보험, 식대</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-1.5 font-bold text-blue-700">임차료</td>
+                                        <td className="p-1.5 text-gray-600">사무실 월세, 관리비, 전기/수도/가스요금</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-1.5 font-bold text-blue-700">차량/운반</td>
+                                        <td className="p-1.5 text-gray-600">유류비, 수리비, 보험료, 퀵서비스, 택배비</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-1.5 font-bold text-blue-700">사업지원</td>
+                                        <td className="p-1.5 text-gray-600">접대비, 경조사비, 광고선전비, 포장비</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-1.5 font-bold text-blue-700">금융/보험</td>
+                                        <td className="p-1.5 text-gray-600">대출이자, 화재보험료 (원금 제외)</td>
+                                    </tr>
+                                    <tr>
+                                        <td className="p-1.5 font-bold text-blue-700">기타</td>
+                                        <td className="p-1.5 text-gray-600">사무용품, 도서인쇄, 수선, 회의, 통신비</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <p className="text-[10px] text-blue-500 mt-1.5 text-right">* 적격증빙(세금계산서, 현금영수증, 신용카드매출전표) 수취 필수</p>
+                    </div>
+                </div>
+
+                {/* Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+                    <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                        <h3 className="text-xs font-bold text-gray-600 mb-1">절세 전 예상 세금</h3>
+                        <p className="text-xl font-extrabold text-gray-500 line-through decoration-gray-400 decoration-2">
+                            {formatCurrency(result.totalTax + result.vatSaving + result.incomeTaxSaving)}
+                        </p>
+                        <p className="text-[10px] text-gray-400 mt-0.5">공제/감면 적용 전</p>
+                    </div>
+                    <div className="bg-green-50 p-4 rounded-xl border border-green-100">
+                        <h3 className="text-xs font-bold text-green-800 mb-1">총 절세 효과</h3>
+                        <p className="text-xl font-extrabold text-green-600">{formatCurrency(result.totalSaving)}</p>
+                        <div className="text-[10px] text-green-600 mt-1 space-y-0.5">
                             <div className="flex justify-between">
                                 <span>부가세 절감:</span>
                                 <span>{formatCurrency(result.vatSaving)}</span>
@@ -260,251 +710,139 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                             </div>
                         </div>
                     </div>
-                    <div className="bg-blue-50 p-6 rounded-xl border border-blue-100">
-                        <h3 className="text-sm font-bold text-blue-800 mb-2">세후 순수익</h3>
-                        <p className="text-2xl font-extrabold text-blue-600">{formatCurrency(result.netIncome)}</p>
-                        <p className="text-xs text-blue-500 mt-1">비용 및 세금 차감 후</p>
-                    </div>
-                </div>
-
-                {/* Main Input & Analysis */}
-                <div className="grid md:grid-cols-2 gap-8">
-                    {/* Inputs */}
-                    <div className="space-y-6">
-                        <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
-                            <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                                <Calculator className="w-5 h-5" /> 기본 정보 입력
-                            </h3>
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">연간 매출액 (부가세 포함)</label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            value={revenue === 0 ? '' : revenue.toLocaleString()}
-                                            onChange={(e) => {
-                                                const val = e.target.value.replace(/,/g, '');
-                                                if (!isNaN(Number(val))) setRevenue(Number(val));
-                                            }}
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold"
-                                            placeholder="0"
-                                        />
-                                        <span className="absolute right-4 top-3 text-gray-400">원</span>
-                                    </div>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">연간 지출액 (매입+경비)</label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            value={expenses === 0 ? '' : expenses.toLocaleString()}
-                                            onChange={(e) => {
-                                                const val = e.target.value.replace(/,/g, '');
-                                                if (!isNaN(Number(val))) setExpenses(Number(val));
-                                            }}
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold"
-                                            placeholder="0"
-                                        />
-                                        <span className="absolute right-4 top-3 text-gray-400">원</span>
-                                    </div>
-                                    <p className="text-xs text-gray-500 mt-1">* 인건비 제외 (아래 별도 입력)</p>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">사업자 유형</label>
-                                    <div className="flex gap-2">
-                                        <button
-                                            onClick={() => setVatMode('general')}
-                                            className={`flex-1 py-2 rounded-lg font-bold border ${vatMode === 'general' ? 'bg-green-50 border-green-500 text-green-700' : 'border-gray-200 text-gray-500'}`}
-                                        >
-                                            일반과세자
-                                        </button>
-                                        <button
-                                            onClick={() => setVatMode('simplified')}
-                                            className={`flex-1 py-2 rounded-lg font-bold border ${vatMode === 'simplified' ? 'bg-green-50 border-green-500 text-green-700' : 'border-gray-200 text-gray-500'}`}
-                                        >
-                                            간이과세자
-                                        </button>
-                                    </div>
-                                </div>
-
-                                {/* Employee Inputs */}
-                                <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
-                                    <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                                        <Users className="w-4 h-4" /> 직원/인건비 정보
-                                    </h4>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div>
-                                            <label className="block text-xs font-bold text-gray-600 mb-1">직원 수</label>
-                                            <div className="relative">
-                                                <input
-                                                    type="number"
-                                                    value={employeeCount}
-                                                    onChange={(e) => setEmployeeCount(Number(e.target.value))}
-                                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-8"
-                                                    placeholder="0"
-                                                />
-                                                <span className="absolute right-3 top-2 text-gray-400 text-xs">명</span>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label className="block text-xs font-bold text-gray-600 mb-1">1인당 월 급여</label>
-                                            <div className="relative">
-                                                <input
-                                                    type="text"
-                                                    value={employeeSalary === 0 ? '' : employeeSalary.toLocaleString()}
-                                                    onChange={(e) => {
-                                                        const val = e.target.value.replace(/,/g, '');
-                                                        if (!isNaN(Number(val))) setEmployeeSalary(Number(val));
-                                                    }}
-                                                    className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-8"
-                                                    placeholder="0"
-                                                />
-                                                <span className="absolute right-3 top-2 text-gray-400 text-xs">원</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {result.laborCost > 0 && (
-                                        <p className="text-xs text-indigo-600 mt-2 text-right">
-                                            연간 총 인건비: <strong>{formatCurrency(result.laborCost)}</strong>
-                                        </p>
-                                    )}
-                                </div>
-
-                                {/* Card Spending Input */}
-                                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                                    <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
-                                        <CreditCard className="w-4 h-4" /> 사업자 카드 사용
-                                    </h4>
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-600 mb-1">월 평균 카드 사용금액</label>
-                                        <div className="relative">
-                                            <input
-                                                type="text"
-                                                value={cardSpending === 0 ? '' : cardSpending.toLocaleString()}
-                                                onChange={(e) => {
-                                                    const val = e.target.value.replace(/,/g, '');
-                                                    if (!isNaN(Number(val))) setCardSpending(Number(val));
-                                                }}
-                                                className="w-full p-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-right pr-8"
-                                                placeholder="0"
-                                            />
-                                            <span className="absolute right-3 top-2 text-gray-400 text-xs">원</span>
-                                        </div>
-                                        {result.cardBenefit > 0 && (
-                                            <div className="mt-3 bg-white p-3 rounded-lg border border-blue-100">
-                                                <p className="text-xs font-bold text-blue-800 mb-2">삼성카드 BIZ THE iD. PLATINUM 기준</p>
-                                                <div className="space-y-1 text-xs text-gray-600">
-                                                    <div className="flex justify-between">
-                                                        <span>기프트 서비스:</span>
-                                                        <span className="text-blue-600">+{formatCurrency(result.cardGift)}</span>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <span>포인트 적립 (1.2%):</span>
-                                                        <span className="text-blue-600">+{formatCurrency(result.cardPoints)}</span>
-                                                    </div>
-                                                    <div className="flex justify-between">
-                                                        <span>사업경비 할인 (3%):</span>
-                                                        <span className="text-blue-600">+{formatCurrency(result.cardDiscount)}</span>
-                                                    </div>
-                                                    <div className="flex justify-between pt-1 border-t border-gray-100">
-                                                        <span>연회비:</span>
-                                                        <span className="text-red-500">-{formatCurrency(result.cardAnnualFee)}</span>
-                                                    </div>
-                                                    <div className="flex justify-between pt-1 border-t border-blue-100 font-bold">
-                                                        <span className="text-blue-800">총 혜택 (순이익):</span>
-                                                        <span className="text-blue-600">{formatCurrency(result.cardBenefit)}</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-sm font-bold text-gray-700 mb-2">노란우산공제 월 납입액</label>
-                                    <div className="relative">
-                                        <input
-                                            type="text"
-                                            value={yellowUmbrella === 0 ? '' : yellowUmbrella.toLocaleString()}
-                                            onChange={(e) => {
-                                                const val = e.target.value.replace(/,/g, '');
-                                                if (!isNaN(Number(val))) setYellowUmbrella(Number(val));
-                                            }}
-                                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none font-bold"
-                                            placeholder="0"
-                                        />
-                                        <span className="absolute right-4 top-3 text-gray-400">원</span>
-                                    </div>
-                                </div>
+                    <div className="bg-red-50 p-4 rounded-xl border border-red-100">
+                        <h3 className="text-xs font-bold text-red-800 mb-1">총 예상 납부세액</h3>
+                        <p className="text-xl font-extrabold text-red-600">{formatCurrency(result.totalTax)}</p>
+                        <div className="text-[10px] text-red-500 mt-1 space-y-0.5">
+                            <div className="flex justify-between">
+                                <span>부가가치세:</span>
+                                <span>{formatCurrency(result.vat)}</span>
+                            </div>
+                            <div className="flex justify-between">
+                                <span>종합소득세:</span>
+                                <span>{formatCurrency(result.incomeTax)}</span>
                             </div>
                         </div>
                     </div>
+                    <div className="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                        <h3 className="text-xs font-bold text-blue-800 mb-1">세후 순수익</h3>
+                        <p className="text-xl font-extrabold text-blue-600">{formatCurrency(result.netIncome)}</p>
+                        <p className="text-[10px] text-blue-500 mt-0.5">비용 및 세금 차감 후</p>
+                    </div>
+                </div>
 
-                    {/* Breakdown Chart */}
-                    <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm flex flex-col">
-                        <h3 className="text-lg font-bold text-gray-800 mb-2">수익 및 세금 구조</h3>
-                        <div className="flex-1 min-h-[250px]">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <PieChart>
-                                    <Pie
-                                        data={dataPie}
-                                        cx="50%"
-                                        cy="50%"
-                                        innerRadius={60}
-                                        outerRadius={80}
-                                        paddingAngle={5}
-                                        dataKey="value"
-                                    >
-                                        {dataPie.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip formatter={(value) => formatCurrency(value as number)} />
-                                    <Legend layout="vertical" verticalAlign="middle" align="right" />
-                                </PieChart>
-                            </ResponsiveContainer>
+                {/* Applied Deductions Breakdown Box */}
+                <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                    <h3 className="text-base font-bold text-gray-800 mb-3 flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-green-600" />
+                        적용된 절세/공제 항목 상세
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* VAT Deductions */}
+                        <div className="space-y-2">
+                            <h4 className="text-xs font-bold text-gray-600 border-b pb-1">부가가치세 절감</h4>
+                            <ul className="space-y-1 text-xs">
+                                <li className="flex justify-between items-center">
+                                    <span className="text-gray-500">매입세액 공제</span>
+                                    <span className="font-bold text-gray-800">{formatCurrency(result.vatPurchaseDeduction)}</span>
+                                </li>
+                                {result.creditCardDeduction > 0 && (
+                                    <li className="flex justify-between items-center">
+                                        <span className="text-gray-500">신용카드 발행공제</span>
+                                        <span className="font-bold text-gray-800">{formatCurrency(result.creditCardDeduction)}</span>
+                                    </li>
+                                )}
+                            </ul>
+                        </div>
+
+                        {/* Income Tax Deductions */}
+                        <div className="space-y-2">
+                            <h4 className="text-xs font-bold text-gray-600 border-b pb-1">소득세 절감</h4>
+                            <ul className="space-y-1 text-xs">
+                                <li className="flex justify-between items-center">
+                                    <span className="text-gray-500">노란우산 공제 ({formatCurrency(result.actualYellowUmbrellaDeduction)})</span>
+                                    <span className="font-bold text-green-600">-{formatCurrency(result.incomeTaxYellowUmbrellaSaving)}</span>
+                                </li>
+                                {result.laborCost > 0 && (
+                                    <li className="flex justify-between items-center">
+                                        <span className="text-gray-500">인건비 비용처리 ({formatCurrency(result.laborCost)})</span>
+                                        <span className="font-bold text-green-600">비용인정</span>
+                                    </li>
+                                )}
+                                <li className="flex justify-between items-center">
+                                    <span className="text-gray-500">기본 공제</span>
+                                    <span className="font-bold text-gray-800">150만원</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        {/* Card Benefits */}
+                        <div className="space-y-2">
+                            <h4 className="text-xs font-bold text-gray-600 border-b pb-1">카드 혜택</h4>
+                            {result.cardBenefit > 0 ? (
+                                <ul className="space-y-1 text-xs">
+                                    <li className="flex justify-between items-center">
+                                        <span className="text-gray-500">포인트 적립 (1.2%)</span>
+                                        <span className="font-bold text-blue-600">+{formatCurrency(result.cardPoints)}</span>
+                                    </li>
+                                    <li className="flex justify-between items-center">
+                                        <span className="text-gray-500">사업경비 할인 (3%)</span>
+                                        <span className="font-bold text-blue-600">+{formatCurrency(result.cardDiscount)}</span>
+                                    </li>
+                                    <li className="flex justify-between items-center">
+                                        <span className="text-gray-500">기프트 서비스</span>
+                                        <span className="font-bold text-blue-600">+{formatCurrency(result.cardGift)}</span>
+                                    </li>
+                                    <li className="flex justify-between items-center">
+                                        <span className="text-gray-500">연회비 차감</span>
+                                        <span className="font-bold text-red-500">-{formatCurrency(result.cardAnnualFee)}</span>
+                                    </li>
+                                </ul>
+                            ) : (
+                                <p className="text-[10px] text-gray-400">적용된 카드 혜택이 없습니다.</p>
+                            )}
                         </div>
                     </div>
                 </div>
 
                 {/* Detailed Breakdown */}
-                <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                    <h3 className="text-lg font-bold text-gray-800 mb-4">세금 상세 내역</h3>
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-100">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
-                                    <DollarSign className="w-5 h-5" />
+                <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <h3 className="text-base font-bold text-gray-800 mb-3">세금 상세 내역</h3>
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100">
+                            <div className="flex items-center gap-2">
+                                <div className="p-1.5 bg-blue-100 rounded-lg text-blue-600">
+                                    <DollarSign className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <p className="font-bold text-gray-800">부가가치세</p>
-                                    <p className="text-xs text-gray-500">
+                                    <p className="font-bold text-sm text-gray-800">부가가치세</p>
+                                    <p className="text-[10px] text-gray-500">
                                         {vatMode === 'general' ? '매출세액 - 매입세액공제' : '매출세액 - (매입공제 + 신용카드발행공제)'}
                                     </p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="font-bold text-gray-900">{formatCurrency(result.vat)}</p>
-                                <div className="text-xs text-green-600">
+                                <p className="font-bold text-sm text-gray-900">{formatCurrency(result.vat)}</p>
+                                <div className="text-[10px] text-green-600">
                                     <p>매입공제: -{formatCurrency(result.vatPurchaseDeduction)}</p>
                                     {result.creditCardDeduction > 0 && <p>신용카드발행공제: -{formatCurrency(result.creditCardDeduction)}</p>}
                                 </div>
                             </div>
                         </div>
 
-                        <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-gray-100">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-green-100 rounded-lg text-green-600">
-                                    <TrendingDown className="w-5 h-5" />
+                        <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-gray-100">
+                            <div className="flex items-center gap-2">
+                                <div className="p-1.5 bg-green-100 rounded-lg text-green-600">
+                                    <TrendingDown className="w-4 h-4" />
                                 </div>
                                 <div>
-                                    <p className="font-bold text-gray-800">종합소득세 (지방세 포함)</p>
-                                    <p className="text-xs text-gray-500">과세표준 × 세율 - 누진공제</p>
+                                    <p className="font-bold text-sm text-gray-800">종합소득세 (지방세 포함)</p>
+                                    <p className="text-[10px] text-gray-500">과세표준 × 세율 - 누진공제</p>
                                 </div>
                             </div>
                             <div className="text-right">
-                                <p className="font-bold text-gray-900">{formatCurrency(result.incomeTax)}</p>
-                                <div className="text-xs text-green-600">
+                                <p className="font-bold text-sm text-gray-900">{formatCurrency(result.incomeTax)}</p>
+                                <div className="text-[10px] text-green-600">
                                     <p>노란우산 공제: -{formatCurrency(result.actualYellowUmbrellaDeduction)} (한도: {formatCurrency(result.yellowUmbrellaLimit)})</p>
                                     <p>노란우산 절세: -{formatCurrency(result.incomeTaxYellowUmbrellaSaving)}</p>
                                     {result.laborCost > 0 && <p>인건비 비용인정 효과 포함</p>}
@@ -513,19 +851,19 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                         </div>
 
                         {result.cardBenefit > 0 && (
-                            <div className="flex items-center justify-between p-4 bg-white rounded-lg border border-blue-100">
-                                <div className="flex items-center gap-3">
-                                    <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
-                                        <CreditCard className="w-5 h-5" />
+                            <div className="flex items-center justify-between p-3 bg-white rounded-lg border border-blue-100">
+                                <div className="flex items-center gap-2">
+                                    <div className="p-1.5 bg-blue-100 rounded-lg text-blue-600">
+                                        <CreditCard className="w-4 h-4" />
                                     </div>
                                     <div>
-                                        <p className="font-bold text-gray-800">사업자 카드 혜택</p>
-                                        <p className="text-xs text-gray-500">포인트 적립 + 할인 + 기프트 (연회비 차감)</p>
+                                        <p className="font-bold text-sm text-gray-800">사업자 카드 혜택</p>
+                                        <p className="text-[10px] text-gray-500">포인트 적립 + 할인 + 기프트 (연회비 차감)</p>
                                     </div>
                                 </div>
                                 <div className="text-right">
-                                    <p className="font-bold text-blue-600">+{formatCurrency(result.cardBenefit)}</p>
-                                    <div className="text-xs text-gray-500 text-right">
+                                    <p className="font-bold text-sm text-blue-600">+{formatCurrency(result.cardBenefit)}</p>
+                                    <div className="text-[10px] text-gray-500 text-right">
                                         <span>포인트: +{formatCurrency(result.cardPoints)} / </span>
                                         <span>할인: +{formatCurrency(result.cardDiscount)}</span>
                                     </div>
@@ -536,38 +874,38 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                 </div>
 
                 {/* Tax Saving Tips Section */}
-                <div className="grid md:grid-cols-2 gap-6">
-                    <div className="bg-yellow-50 p-6 rounded-xl border border-yellow-200">
-                        <h3 className="text-lg font-bold text-yellow-800 mb-4 flex items-center gap-2">
-                            <CheckCircle className="w-5 h-5" />
+                <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-yellow-50 p-4 rounded-xl border border-yellow-200">
+                        <h3 className="text-base font-bold text-yellow-800 mb-3 flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4" />
                             절세 체크리스트
                         </h3>
-                        <ul className="space-y-3">
-                            <li className="flex items-start gap-2 text-sm text-gray-700">
-                                <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                        <ul className="space-y-2">
+                            <li className="flex items-start gap-2 text-xs text-gray-700">
+                                <CheckCircle className="w-3 h-3 text-green-500 mt-0.5" />
                                 <span><strong>사업자카드 사용:</strong> 지출 시 사업자카드를 사용하면 매입세액 공제 및 소득세 비용 처리가 간편해집니다.</span>
                             </li>
-                            <li className="flex items-start gap-2 text-sm text-gray-700">
-                                <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
-                                <span><strong>노란우산공제 가입:</strong> 연 최대 500만원(소득 구간별 상이) 소득공제로 소득세율 구간을 낮출 수 있습니다.</span>
+                            <li className="flex items-start gap-2 text-xs text-gray-700">
+                                <CheckCircle className="w-3 h-3 text-green-500 mt-0.5" />
+                                <span><strong>노란우산공제 가입:</strong> 연 최대 600만원(2025년 기준) 소득공제로 소득세율 구간을 낮출 수 있습니다.</span>
                             </li>
-                            <li className="flex items-start gap-2 text-sm text-gray-700">
-                                <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                            <li className="flex items-start gap-2 text-xs text-gray-700">
+                                <CheckCircle className="w-3 h-3 text-green-500 mt-0.5" />
                                 <span><strong>인건비 신고:</strong> 직원 급여는 원천세 신고를 해야 비용으로 인정받아 소득세를 줄일 수 있습니다.</span>
                             </li>
-                            <li className="flex items-start gap-2 text-sm text-gray-700">
-                                <CheckCircle className="w-4 h-4 text-green-500 mt-0.5" />
+                            <li className="flex items-start gap-2 text-xs text-gray-700">
+                                <CheckCircle className="w-3 h-3 text-green-500 mt-0.5" />
                                 <span><strong>청년창업 세액감면:</strong> 만 15~34세 청년 창업 시 5년간 소득세 50~100% 감면 가능 (조건 확인 필수)</span>
                             </li>
                         </ul>
                     </div>
 
-                    <div className="bg-indigo-50 p-6 rounded-xl border border-indigo-200">
-                        <h3 className="text-lg font-bold text-indigo-800 mb-4 flex items-center gap-2">
-                            <Info className="w-5 h-5" />
+                    <div className="bg-indigo-50 p-4 rounded-xl border border-indigo-200">
+                        <h3 className="text-base font-bold text-indigo-800 mb-3 flex items-center gap-2">
+                            <Info className="w-4 h-4" />
                             추가 절세 팁
                         </h3>
-                        <div className="space-y-3 text-sm text-gray-700">
+                        <div className="space-y-2 text-xs text-gray-700">
                             <p>
                                 <strong className="text-indigo-700">경조사비 처리:</strong> 거래처 경조사비는 건당 20만원까지 접대비로 인정됩니다. (청첩장, 부고장 보관 필수)
                             </p>
