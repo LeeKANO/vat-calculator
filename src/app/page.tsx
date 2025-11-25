@@ -11,22 +11,24 @@ import LaborGuide from '@/components/LaborGuide';
 import BusinessCardGuide from '@/components/BusinessCardGuide';
 import SupportFundsGuide from '@/components/SupportFundsGuide';
 import DeliveryProfitCalculator from '@/components/DeliveryProfitCalculator';
-import { Calculator, Calendar, DollarSign, Shield, AlertTriangle, Flame, Briefcase, CreditCard, Gift, Bike } from 'lucide-react';
+import TaxSavingCalculator from '@/components/TaxSavingCalculator';
+import { Calculator, Calendar, DollarSign, Shield, AlertTriangle, Flame, Briefcase, CreditCard, Gift, Bike, PiggyBank } from 'lucide-react';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'vat' | 'income' | 'schedule' | 'yellow' | 'penalty' | 'fire' | 'labor' | 'card' | 'support' | 'delivery'>('schedule');
+  const [activeTab, setActiveTab] = useState<'vat' | 'income' | 'schedule' | 'yellow' | 'penalty' | 'fire' | 'labor' | 'card' | 'support' | 'delivery' | 'saving'>('schedule');
 
-  // VATCalculator states
+  // Global Shared State
+  const [globalRevenue, setGlobalRevenue] = useState<number>(0);
+  const [globalExpenses, setGlobalExpenses] = useState<number>(0);
+  const [globalCardSpending, setGlobalCardSpending] = useState<number>(0);
+
+  // VATCalculator specific states
   const [vatMode, setVatMode] = useState<'general' | 'simplified'>('general');
-  const [vatRevenue, setVatRevenue] = useState<number>(0);
-  const [vatPurchase, setVatPurchase] = useState<number>(0);
   const [vatIndustryRate, setVatIndustryRate] = useState<number>(0.15);
   const [vatCreditCardSales, setVatCreditCardSales] = useState<number>(0);
   const [vatSelectedIndustry, setVatSelectedIndustry] = useState<{ name: string, rate: number } | null>(null);
 
-  // IncomeTaxCalculator states
-  const [incomeRevenue, setIncomeRevenue] = useState<number>(0);
-  const [incomeExpenses, setIncomeExpenses] = useState<number>(0);
+  // IncomeTaxCalculator specific states
   const [incomeDeductions, setIncomeDeductions] = useState<number>(1500000);
   const [incomeYellowUmbrella, setIncomeYellowUmbrella] = useState<number>(0);
 
@@ -35,19 +37,25 @@ export default function Home() {
   const [yellowDuration, setYellowDuration] = useState<number>(10);
   const [yellowInterestRate, setYellowInterestRate] = useState<number>(3.3);
 
+  // TaxSavingCalculator specific states
+  const [savingVatMode, setSavingVatMode] = useState<'general' | 'simplified'>('general');
+  const [savingYellowUmbrella, setSavingYellowUmbrella] = useState<number>(0);
+  const [savingEmployeeCount, setSavingEmployeeCount] = useState<number>(0);
+  const [savingEmployeeSalary, setSavingEmployeeSalary] = useState<number>(0);
+
   // Reset functions
   const resetVAT = () => {
     setVatMode('general');
-    setVatRevenue(0);
-    setVatPurchase(0);
+    setGlobalRevenue(0);
+    setGlobalExpenses(0);
     setVatIndustryRate(0.15);
     setVatCreditCardSales(0);
     setVatSelectedIndustry(null);
   };
 
   const resetIncome = () => {
-    setIncomeRevenue(0);
-    setIncomeExpenses(0);
+    setGlobalRevenue(0);
+    setGlobalExpenses(0);
     setIncomeDeductions(1500000);
     setIncomeYellowUmbrella(0);
   };
@@ -56,6 +64,16 @@ export default function Home() {
     setYellowMonthlyPayment(250000);
     setYellowDuration(10);
     setYellowInterestRate(3.3);
+  };
+
+  const resetSaving = () => {
+    setGlobalRevenue(0);
+    setGlobalExpenses(0);
+    setSavingVatMode('general');
+    setSavingYellowUmbrella(0);
+    setSavingEmployeeCount(0);
+    setSavingEmployeeSalary(0);
+    setGlobalCardSpending(0);
   };
 
   return (
@@ -82,6 +100,16 @@ export default function Home() {
           >
             <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
             세무 일정표
+          </button>
+          <button
+            onClick={() => setActiveTab('saving')}
+            className={`w-full py-3 px-3 rounded-lg font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2 whitespace-nowrap
+              ${activeTab === 'saving'
+                ? 'bg-indigo-50 text-indigo-600 shadow-sm ring-1 ring-indigo-200'
+                : 'text-gray-500 hover:bg-gray-50'}`}
+          >
+            <PiggyBank className="w-4 h-4 sm:w-5 sm:h-5" />
+            절세 계산기
           </button>
           <button
             onClick={() => setActiveTab('vat')}
@@ -180,10 +208,10 @@ export default function Home() {
           {activeTab === 'vat' && <VATCalculator
             mode={vatMode}
             setMode={setVatMode}
-            revenue={vatRevenue}
-            setRevenue={setVatRevenue}
-            purchase={vatPurchase}
-            setPurchase={setVatPurchase}
+            revenue={globalRevenue}
+            setRevenue={setGlobalRevenue}
+            purchase={globalExpenses}
+            setPurchase={setGlobalExpenses}
             industryRate={vatIndustryRate}
             setIndustryRate={setVatIndustryRate}
             creditCardSales={vatCreditCardSales}
@@ -193,10 +221,10 @@ export default function Home() {
             onReset={resetVAT}
           />}
           {activeTab === 'income' && <IncomeTaxCalculator
-            revenue={incomeRevenue}
-            setRevenue={setIncomeRevenue}
-            expenses={incomeExpenses}
-            setExpenses={setIncomeExpenses}
+            revenue={globalRevenue}
+            setRevenue={setGlobalRevenue}
+            expenses={globalExpenses}
+            setExpenses={setGlobalExpenses}
             deductions={incomeDeductions}
             setDeductions={setIncomeDeductions}
             yellowUmbrella={incomeYellowUmbrella}
@@ -206,6 +234,23 @@ export default function Home() {
             onReset={resetIncome}
           />}
           {activeTab === 'schedule' && <TaxSchedule />}
+          {activeTab === 'saving' && <TaxSavingCalculator
+            revenue={globalRevenue}
+            setRevenue={setGlobalRevenue}
+            expenses={globalExpenses}
+            setExpenses={setGlobalExpenses}
+            vatMode={savingVatMode}
+            setVatMode={setSavingVatMode}
+            yellowUmbrella={savingYellowUmbrella}
+            setYellowUmbrella={setSavingYellowUmbrella}
+            employeeCount={savingEmployeeCount}
+            setEmployeeCount={setSavingEmployeeCount}
+            employeeSalary={savingEmployeeSalary}
+            setEmployeeSalary={setSavingEmployeeSalary}
+            cardSpending={globalCardSpending}
+            setCardSpending={setGlobalCardSpending}
+            onReset={resetSaving}
+          />}
           {activeTab === 'yellow' && <YellowUmbrellaGuide
             monthlyPayment={yellowMonthlyPayment}
             setMonthlyPayment={setYellowMonthlyPayment}
@@ -218,7 +263,10 @@ export default function Home() {
           {activeTab === 'penalty' && <PenaltyTaxGuide />}
           {activeTab === 'fire' && <FireInsuranceGuide />}
           {activeTab === 'labor' && <LaborGuide />}
-          {activeTab === 'card' && <BusinessCardGuide />}
+          {activeTab === 'card' && <BusinessCardGuide
+            monthlySpend={globalCardSpending}
+            setMonthlySpend={setGlobalCardSpending}
+          />}
           {activeTab === 'support' && <SupportFundsGuide />}
           {activeTab === 'delivery' && <DeliveryProfitCalculator />}
         </div>
