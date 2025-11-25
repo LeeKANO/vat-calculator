@@ -1,11 +1,14 @@
 "use client";
 
-import React, { useState } from 'react';
+import React from 'react';
 import { CreditCard, Gift, TrendingUp, CheckCircle } from 'lucide-react';
 
-const BusinessCardGuide = () => {
-    const [monthlySpend, setMonthlySpend] = useState<number>(3000000); // Default 3 million KRW
+interface BusinessCardGuideProps {
+    monthlySpend: number;
+    setMonthlySpend: (value: number) => void;
+}
 
+const BusinessCardGuide: React.FC<BusinessCardGuideProps> = ({ monthlySpend, setMonthlySpend }) => {
     // Card 1: Samsung BIZ THE iD. PLATINUM
     const platinum = {
         name: "BIZ THE iD. PLATINUM",
