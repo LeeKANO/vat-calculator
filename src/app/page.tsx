@@ -12,10 +12,11 @@ import BusinessCardGuide from '@/components/BusinessCardGuide';
 import SupportFundsGuide from '@/components/SupportFundsGuide';
 import DeliveryProfitCalculator from '@/components/DeliveryProfitCalculator';
 import TaxSavingCalculator from '@/components/TaxSavingCalculator';
-import { Calculator, Calendar, DollarSign, Shield, AlertTriangle, Flame, Briefcase, CreditCard, Gift, Bike, PiggyBank } from 'lucide-react';
+import TaxLaborFeeCalculator from '@/components/TaxLaborFeeCalculator';
+import { Calculator, Calendar, DollarSign, Shield, AlertTriangle, Flame, Briefcase, CreditCard, Gift, Bike, PiggyBank, Coins } from 'lucide-react';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'vat' | 'income' | 'schedule' | 'yellow' | 'penalty' | 'fire' | 'labor' | 'card' | 'support' | 'delivery' | 'saving'>('schedule');
+  const [activeTab, setActiveTab] = useState<'vat' | 'income' | 'schedule' | 'yellow' | 'penalty' | 'fire' | 'labor' | 'card' | 'support' | 'delivery' | 'saving' | 'fee'>('schedule');
 
   // Global Shared State
   const [globalRevenue, setGlobalRevenue] = useState<number>(0);
@@ -208,6 +209,16 @@ export default function Home() {
             <Bike className="w-4 h-4 sm:w-5 sm:h-5" />
             배달수수료
           </button>
+          <button
+            onClick={() => setActiveTab('fee')}
+            className={`w-full py-3 px-3 rounded-lg font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2 whitespace-nowrap
+              ${activeTab === 'fee'
+                ? 'bg-teal-50 text-teal-600 shadow-sm ring-1 ring-teal-200'
+                : 'text-gray-500 hover:bg-gray-50'}`}
+          >
+            <Coins className="w-4 h-4 sm:w-5 sm:h-5" />
+            세무비용
+          </button>
         </div>
 
         {/* Content Area */}
@@ -284,6 +295,7 @@ export default function Home() {
           />}
           {activeTab === 'support' && <SupportFundsGuide />}
           {activeTab === 'delivery' && <DeliveryProfitCalculator />}
+          {activeTab === 'fee' && <TaxLaborFeeCalculator />}
         </div>
       </div>
     </main>
