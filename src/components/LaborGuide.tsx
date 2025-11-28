@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle2, Shield, TrendingUp, Users, FileText, Scale, Phone, Calculator, PiggyBank, ChevronRight, Info, AlertTriangle, Lock, ChevronDown, ChevronUp, X } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Shield, TrendingUp, Users, FileText, Scale, Phone, Calculator, PiggyBank, ChevronRight, Info, AlertTriangle, Lock, ChevronDown, ChevronUp, X, Download } from 'lucide-react';
 import Image from 'next/image';
 
 export default function LaborGuide() {
@@ -50,15 +50,14 @@ export default function LaborGuide() {
         </div>
     );
 }
-
 // ----------------------------------------------------------------------
-// 1. Persuasive Labor Guide Content (Updated)
+// 1. Persuasive Labor Guide Content (Flat Version)
 // ----------------------------------------------------------------------
 function LaborGuideContent() {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
     return (
-        <div className="space-y-12">
+        <div className="space-y-16">
             {/* Image Lightbox Modal */}
             {selectedImage && (
                 <div
@@ -79,421 +78,202 @@ function LaborGuideContent() {
                     />
                 </div>
             )}
+
             {/* HERO Section */}
             <section className="relative overflow-hidden rounded-2xl bg-slate-900 text-white p-8 sm:p-16 text-center shadow-2xl">
                 <div className="absolute top-0 left-0 w-full h-full opacity-20 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]"></div>
                 <div className="relative z-10 max-w-4xl mx-auto">
                     <div className="inline-block px-4 py-1.5 mb-6 text-xs sm:text-sm font-semibold tracking-wider text-yellow-400 uppercase bg-yellow-900/30 rounded-full border border-yellow-500/30 backdrop-blur-sm">
-                        사장님 필독
+                        노무법인 윤솔
                     </div>
                     <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight mb-8 leading-tight break-keep">
-                        "노동부는 근로자 편입니다.<br />
-                        <span className="text-yellow-400">대표님을 보호하는 문구</span>가 필요합니다."
+                        "사장님, <span className="text-yellow-400">노무 리스크</span>는<br />
+                        예방이 최선입니다."
                     </h1>
                     <p className="text-lg sm:text-xl text-slate-300 font-medium leading-relaxed break-keep max-w-2xl mx-auto">
-                        표준근로계약서만 믿고 계신가요? <br className="sm:hidden" />
-                        작은 문구 하나가 수천만 원의 과태료를 막아줍니다.
+                        과태료 폭탄, 임금 체불, 부당 해고...<br />
+                        전문가의 관리로 완벽하게 방어하고 지원금까지 챙겨드립니다.
                     </p>
                 </div>
             </section>
 
-            {/* Section 1: The Reality (Image 0 & 2) */}
-            <section className="grid lg:grid-cols-2 gap-8 items-center">
-                <div className="order-2 lg:order-1 space-y-6">
-                    <div className="bg-white p-6 rounded-2xl shadow-lg border-l-4 border-red-500">
-                        <h3 className="text-2xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                            <AlertTriangle className="w-6 h-6 text-red-500" />
-                            사장님을 위협하는 현실
-                        </h3>
-                        <ul className="space-y-4">
-                            <li className="flex items-start gap-3">
-                                <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
-                                    <span className="text-red-600 font-bold text-sm">1</span>
-                                </div>
-                                <div>
-                                    <p className="font-bold text-gray-800">오전 출근, 오후 도망 → 노동부 신고</p>
-                                    <p className="text-sm text-gray-600">황당한 경우라도 근로계약서 미작성 시 과태료 최대 500만원이 부과됩니다.</p>
-                                </div>
-                            </li>
-                            <li className="flex items-start gap-3">
-                                <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
-                                    <span className="text-red-600 font-bold text-sm">2</span>
-                                </div>
-                                <div>
-                                    <p className="font-bold text-gray-800">사직서 받고 보냈는데 부당해고?</p>
-                                    <p className="text-sm text-gray-600">"3일 뒤에 나오지 마세요" 한마디가 해고예고수당 + 6개월치 임금 지급 명령으로 돌아옵니다.</p>
-                                </div>
-                            </li>
-                            <li className="flex items-start gap-3">
-                                <div className="w-6 h-6 rounded-full bg-red-100 flex items-center justify-center shrink-0 mt-0.5">
-                                    <span className="text-red-600 font-bold text-sm">3</span>
-                                </div>
-                                <div>
-                                    <p className="font-bold text-gray-800">무단 퇴사로 인한 손해</p>
-                                    <p className="text-sm text-gray-600">갑작스런 퇴사로 가게 문을 닫아도, 손해배상 청구는 현실적으로 어렵습니다.</p>
-                                </div>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                <div className="order-1 lg:order-2">
-                    <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white transform rotate-2 hover:rotate-0 transition-transform duration-500">
-                        <img
-                            src="/images/labor/labor_01.png"
-                            alt="근로계약서 비교"
-                            className="w-full h-auto object-cover cursor-pointer hover:opacity-95 transition-opacity"
-                            onClick={() => setSelectedImage("/images/labor/labor_01.png")}
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-6">
-                            <p className="text-white font-bold text-lg">표준계약서 vs 방어형 계약서</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Section 1.5: Fake 3.3% & Wage Strategy (New) */}
-            <section className="space-y-12">
-                {/* Part 1: Fake 3.3% Warning */}
-                <div className="bg-red-50 rounded-3xl p-8 sm:p-12 border border-red-100">
-                    <div className="text-center mb-10">
-                        <div className="inline-block px-4 py-1.5 mb-4 text-xs font-bold tracking-wider text-red-600 uppercase bg-red-100 rounded-full">
-                            위험 경고
-                        </div>
-                        <h2 className="text-3xl font-bold text-red-900 mb-4">
-                            "3.3% 프리랜서 계약, <span className="text-red-600">안전할까요?</span>"
-                        </h2>
-                        <p className="text-red-800 text-lg max-w-2xl mx-auto">
-                            출퇴근 시간이 정해져 있고 업무 지시를 받는다면, <br className="sm:hidden" />
-                            <strong>무조건 근로자</strong>입니다.
-                        </p>
-                    </div>
-
-                    <div className="grid md:grid-cols-2 gap-8 items-center">
-                        <div className="bg-white p-6 rounded-2xl shadow-sm">
-                            <h4 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-2">
-                                <AlertTriangle className="w-5 h-5 text-red-500" />
-                                가짜 3.3% 적발 시 폭탄
-                            </h4>
-                            <ul className="space-y-3 text-sm text-gray-700">
-                                <li className="flex items-start gap-2">
-                                    <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 shrink-0"></span>
-                                    <span><strong>4대보험료 소급 징수:</strong> 최대 3년치 보험료 한꺼번에 부과 (사업주 부담분 + 근로자 부담분까지)</span>
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 shrink-0"></span>
-                                    <span><strong>과태료 부과:</strong> 미가입 기간에 따른 과태료 별도 부과</span>
-                                </li>
-                                <li className="flex items-start gap-2">
-                                    <span className="w-1.5 h-1.5 bg-red-500 rounded-full mt-1.5 shrink-0"></span>
-                                    <span><strong>퇴직금 지급:</strong> 프리랜서라 안 줬던 퇴직금도 지급해야 함</span>
-                                </li>
-                            </ul>
-                        </div>
-                        <div className="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-500">
-                            <h4 className="font-bold text-lg text-gray-900 mb-4 flex items-center gap-2">
-                                <CheckCircle2 className="w-5 h-5 text-blue-500" />
-                                해결책: 합법적 절세 설계
-                            </h4>
-                            <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                                4대보험을 가입하더라도 <strong>비과세 수당</strong>과 <strong>두루누리 지원금</strong>을 활용하면, 3.3%보다 비용이 적게 들 수 있습니다.
-                            </p>
-                            <div className="bg-blue-50 p-3 rounded-lg text-center">
-                                <span className="text-blue-700 font-bold text-sm">"오히려 4대보험 가입이 이득이 될 수 있습니다!"</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Part 2: Wage Strategy Visual (Image 0 Logic) */}
-                <div className="bg-white rounded-3xl p-8 sm:p-12 shadow-xl border border-gray-100">
-                    <div className="text-center mb-10">
-                        <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                            임금 항목 재정비의 마법
-                        </h2>
-                        <p className="text-gray-600 text-lg">
-                            같은 월급이라도 <span className="text-blue-600 font-bold">어떻게 구성하느냐</span>에 따라 세금이 달라집니다.
-                        </p>
-                    </div>
-
-                    <div className="grid lg:grid-cols-2 gap-12">
-                        {/* Before */}
-                        <div className="space-y-4">
-                            <div className="text-center font-bold text-gray-500 mb-2">일반적인 월급 구성 (과세 100%)</div>
-                            <div className="bg-gray-100 p-6 rounded-2xl text-center space-y-4 opacity-70">
-                                <div className="text-2xl font-bold text-gray-800">월 300만원</div>
-                                <div className="w-px h-8 bg-gray-300 mx-auto"></div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-white p-4 rounded-xl shadow-sm">
-                                        <div className="text-xs text-gray-500 mb-1">대표자 부담</div>
-                                        <div className="font-bold text-gray-700">약 30만원</div>
-                                    </div>
-                                    <div className="bg-white p-4 rounded-xl shadow-sm">
-                                        <div className="text-xs text-gray-500 mb-1">근로자 부담</div>
-                                        <div className="font-bold text-gray-700">약 30만원</div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* After */}
-                        <div className="space-y-4 relative">
-                            <div className="absolute top-1/2 -left-8 transform -translate-y-1/2 hidden lg:block text-blue-500">
-                                <ChevronRight className="w-8 h-8" />
-                            </div>
-                            <div className="text-center font-bold text-blue-600 mb-2">전략적 급여 설계 (비과세 활용)</div>
-                            <div className="bg-blue-50 p-6 rounded-2xl text-center space-y-4 border-2 border-blue-100">
-                                <div className="space-y-1">
-                                    <div className="text-2xl font-bold text-blue-900">월 300만원</div>
-                                    <div className="text-sm text-blue-600 font-medium bg-white inline-block px-3 py-1 rounded-full shadow-sm">
-                                        과세 250만 + <span className="text-red-500">비과세 50만</span>
-                                    </div>
-                                </div>
-                                <div className="text-xs text-gray-500">
-                                    (식대 20 + 차량 20 + 육아 10 등)
-                                </div>
-                                <div className="w-px h-8 bg-blue-200 mx-auto"></div>
-                                <div className="grid grid-cols-2 gap-4">
-                                    <div className="bg-white p-4 rounded-xl shadow-sm border border-blue-100">
-                                        <div className="text-xs text-gray-500 mb-1">대표자 부담</div>
-                                        <div className="font-bold text-blue-700">25만원 <span className="text-xs text-red-500">(-5만원)</span></div>
-                                    </div>
-                                    <div className="bg-white p-4 rounded-xl shadow-sm border border-blue-100">
-                                        <div className="text-xs text-gray-500 mb-1">근로자 부담</div>
-                                        <div className="font-bold text-blue-700">25만원 <span className="text-xs text-red-500">(-5만원)</span></div>
-                                    </div>
-                                </div>
-                                <div className="bg-blue-600 text-white text-sm font-bold py-2 rounded-lg">
-                                    총 10만원 절감 효과!
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* Part 3: Durunuri Support (Image 1 Logic) */}
-                <div className="bg-gradient-to-br from-indigo-900 to-blue-900 rounded-3xl p-8 sm:p-12 text-white relative overflow-hidden">
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -mr-16 -mt-16"></div>
-
-                    <div className="relative z-10">
-                        <div className="text-center mb-12">
-                            <h2 className="text-3xl font-bold mb-4">
-                                "비과세 설계로 <span className="text-yellow-400">두루누리 지원금</span>까지?"
-                            </h2>
-                            <p className="text-indigo-200 text-lg">
-                                월 보수액을 270만원 미만으로 낮추면, 국민연금/고용보험 80%를 국가가 지원해줍니다.
-                            </p>
-                        </div>
-
-                        <div className="grid md:grid-cols-3 gap-6 text-gray-900">
-                            {/* Step 1 */}
-                            <div className="bg-white/95 p-6 rounded-2xl text-center">
-                                <div className="text-sm text-gray-500 mb-2">STEP 1</div>
-                                <div className="font-bold text-lg mb-4">비과세 적용 전</div>
-                                <div className="text-2xl font-bold text-gray-400 line-through mb-2">월 300만원</div>
-                                <div className="text-red-500 font-bold text-sm">
-                                    두루누리 지원 불가<br />
-                                    (270만원 초과)
-                                </div>
-                            </div>
-
-                            {/* Arrow */}
-                            <div className="hidden md:flex items-center justify-center text-white/50">
-                                <ChevronRight className="w-10 h-10" />
-                            </div>
-
-                            {/* Step 2 */}
-                            <div className="bg-white p-6 rounded-2xl text-center border-4 border-yellow-400 shadow-2xl transform scale-105">
-                                <div className="text-sm text-indigo-600 font-bold mb-2">STEP 2</div>
-                                <div className="font-bold text-lg mb-4">비과세 최대 적용</div>
-                                <div className="space-y-1 mb-4">
-                                    <div className="text-2xl font-bold text-indigo-900">월 250만원</div>
-                                    <div className="text-xs text-gray-500">(과세 소득 기준)</div>
-                                </div>
-                                <div className="bg-indigo-50 rounded-lg p-3">
-                                    <div className="text-indigo-700 font-bold text-sm mb-1">두루누리 80% 지원!</div>
-                                    <div className="text-xs text-gray-600">국민연금/고용보험 대폭 감소</div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="mt-12 bg-white/10 p-6 rounded-2xl border border-white/20 text-center">
-                            <h4 className="text-xl font-bold mb-4">💰 연간 절감 효과 시뮬레이션</h4>
-                            <div className="flex flex-col sm:flex-row justify-center items-center gap-4 text-lg">
-                                <span>직원 부담금 절감</span>
-                                <span className="hidden sm:inline">+</span>
-                                <span>두루누리 지원금</span>
-                                <span className="hidden sm:inline">+</span>
-                                <span>회사 부담금 절감</span>
-                                <span className="hidden sm:inline">=</span>
-                                <span className="text-3xl font-bold text-yellow-400">연 288만원 절감</span>
-                            </div>
-                            <p className="text-indigo-200 text-sm mt-4">
-                                * 직원 1인당 기준 (월 급여 300만원 가정 시)
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            {/* Section 2: The Solution - Strategic Contract (Image 2) */}
-            <section className="bg-indigo-50 rounded-3xl p-8 sm:p-12">
-                <div className="text-center mb-10">
-                    <h2 className="text-3xl font-bold text-indigo-900 mb-4">사장님을 지키는 <span className="text-indigo-600">방어형 근로계약서</span></h2>
-                    <p className="text-indigo-700 text-lg">법적 분쟁을 예방하는 강력한 조항들이 필요합니다.</p>
-                </div>
-
-                <div className="grid md:grid-cols-2 gap-8 mb-10">
-                    <div className="bg-white p-6 rounded-2xl shadow-sm">
-                        <h4 className="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
-                            <Shield className="w-5 h-5 text-indigo-500" />
-                            계약직 활용으로 부당해고 예방
-                        </h4>
-                        <p className="text-gray-600 text-sm leading-relaxed">
-                            수습 기간 설정 및 계약직 종료 조항을 통해 해고 관련 리스크를 원천 차단합니다.
-                        </p>
-                    </div>
-                    <div className="bg-white p-6 rounded-2xl shadow-sm">
-                        <h4 className="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
-                            <Lock className="w-5 h-5 text-indigo-500" />
-                            무단 퇴사 방지 조항
-                        </h4>
-                        <p className="text-gray-600 text-sm leading-relaxed">
-                            갑작스런 퇴사 시 임금 삭감 가능성 명시 및 손해배상 청구 근거를 마련합니다.
-                        </p>
-                    </div>
-                    <div className="bg-white p-6 rounded-2xl shadow-sm">
-                        <h4 className="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
-                            <Scale className="w-5 h-5 text-indigo-500" />
-                            징계 규정 명문화
-                        </h4>
-                        <p className="text-gray-600 text-sm leading-relaxed">
-                            무단 결근, 지각, 업무 태만 등에 대한 명확한 징계 규정이 있어야 실제 징계가 가능합니다.
-                        </p>
-                    </div>
-                    <div className="bg-white p-6 rounded-2xl shadow-sm">
-                        <h4 className="font-bold text-lg text-gray-900 mb-3 flex items-center gap-2">
-                            <Phone className="w-5 h-5 text-indigo-500" />
-                            간편한 전자 서명
-                        </h4>
-                        <p className="text-gray-600 text-sm leading-relaxed">
-                            카카오톡으로 간편하게 서명하고 보관하여 분실 위험을 없앱니다.
-                        </p>
-                    </div>
-                </div>
-
-                <div className="rounded-2xl overflow-hidden shadow-xl border-4 border-white">
-                    <img
-                        src="/images/labor/labor_03.png"
-                        alt="방어형 계약서 조항 예시"
-                        className="w-full h-auto cursor-pointer hover:opacity-95 transition-opacity"
-                        onClick={() => setSelectedImage("/images/labor/labor_03.png")}
-                    />
-                </div>
-            </section>
-
-            {/* Section 3: Comprehensive Wage System (Image 4) */}
-            <section className="grid lg:grid-cols-2 gap-12 items-center">
-                <div className="space-y-6">
-                    <div className="inline-block px-4 py-1.5 text-xs font-bold tracking-wider text-blue-600 uppercase bg-blue-100 rounded-full">
-                        임금 체불 예방
-                    </div>
-                    <h2 className="text-3xl font-bold text-gray-900 leading-tight">
-                        "월급 다 줬는데 임금 체불이라니요?"<br />
-                        <span className="text-blue-600">포괄임금제 설계</span>가 답입니다.
+            {/* Section 1: Risks */}
+            <section className="space-y-8">
+                <div className="text-center">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 flex items-center justify-center gap-3">
+                        <AlertTriangle className="w-8 h-8 text-red-500" />
+                        사장님을 위협하는 3대 리스크
                     </h2>
-                    <p className="text-gray-600 text-lg leading-relaxed">
-                        월급을 단순히 '기본급'으로만 명시하면, 나중에 연장/야간/휴일 수당을 별도로 청구받을 수 있습니다.
-                        <br /><br />
-                        <strong>임금 항목 재정비(임금 쪼개기)</strong>를 통해 기본급 안에 법정 수당을 미리 포함시켜야 합니다.
-                    </p>
+                    <p className="text-gray-600 mt-2">지금 대비하지 않으면 큰 손실로 이어질 수 있습니다.</p>
+                </div>
 
-                    <div className="bg-gray-50 p-6 rounded-xl border border-gray-200">
-                        <h4 className="font-bold text-gray-900 mb-3">실제 피해 사례</h4>
-                        <ul className="space-y-3 text-sm text-gray-700">
-                            <li className="flex items-start gap-2">
-                                <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
-                                <span><strong>사례 1:</strong> 월급 400만원 지급했으나, 연장/야간 수당 미구분으로 2년치 수당 추가 지급 판결 (외국인 근로자 사례)</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                                <AlertCircle className="w-4 h-4 text-red-500 mt-0.5 shrink-0" />
-                                <span><strong>사례 2:</strong> 시급 13,000원 지급했으나, 주휴수당 미포함 주장으로 2.5년치 주휴수당 3명분 추가 지급</span>
-                            </li>
-                        </ul>
+                <div className="grid lg:grid-cols-2 gap-8 items-center">
+                    <div className="space-y-4">
+                        <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm hover:shadow-md transition-shadow">
+                            <h4 className="font-bold text-red-800 mb-2 text-lg">1. 급여명세서 미발송</h4>
+                            <p className="text-gray-600">단순 미발송도 건당 과태료 부과, 최대 500만원까지 부과될 수 있습니다.</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm hover:shadow-md transition-shadow">
+                            <h4 className="font-bold text-red-800 mb-2 text-lg">2. 임금 체불 (포괄임금제 미비)</h4>
+                            <p className="text-gray-600">월급을 다 줬어도, 기본급과 수당을 구분하지 않으면 연장/야간 수당을 또 줘야 할 수 있습니다.</p>
+                        </div>
+                        <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm hover:shadow-md transition-shadow">
+                            <h4 className="font-bold text-red-800 mb-2 text-lg">3. 부당 해고 분쟁</h4>
+                            <p className="text-gray-600">"내일부터 나오지 마" 한마디에 해고예고수당(1개월) + 부당해고 구제(수개월치 임금) 폭탄을 맞습니다.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <div className="relative rounded-2xl overflow-hidden shadow-xl border-4 border-white transform hover:scale-[1.02] transition-transform duration-300">
+                            <img
+                                src="/images/labor/labor_01.png"
+                                alt="노무 리스크"
+                                className="w-full h-auto object-cover cursor-pointer"
+                                onClick={() => setSelectedImage("/images/labor/labor_01.png")}
+                            />
+                        </div>
+                        <p className="text-center text-sm text-gray-500 mt-3">▲ 클릭하여 확대보기 (표준계약서 vs 방어형 계약서)</p>
                     </div>
                 </div>
-                <div className="relative">
-                    <div className="absolute -inset-4 bg-blue-600/20 rounded-full blur-3xl opacity-50"></div>
-                    <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
+            </section>
+
+            {/* Section 2: Wage Design */}
+            <section className="bg-blue-50 rounded-3xl p-8 sm:p-12">
+                <div className="text-center mb-10">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+                        "해결책 1: <span className="text-blue-600">포괄임금제 설계</span>"
+                    </h2>
+                    <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+                        월급을 통으로 주지 않고, <strong>기본급 + 식대 + 연장수당</strong> 등으로 세분화하여 근로계약서에 명시해야 합니다.
+                    </p>
+                </div>
+
+                <div className="grid lg:grid-cols-2 gap-8 items-center">
+                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-blue-100">
+                        <h4 className="font-bold text-blue-900 mb-6 text-center text-lg">임금 쪼개기 예시 (월 300만원 기준)</h4>
+                        <div className="space-y-4">
+                            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                                <span className="text-gray-500 font-medium">기존 (위험)</span>
+                                <div className="text-right">
+                                    <div className="font-bold text-red-500 text-lg">기본급 300만원</div>
+                                    <div className="text-xs text-red-400">연장수당 별도 청구 위험</div>
+                                </div>
+                            </div>
+                            <div className="flex justify-center">
+                                <ChevronDown className="w-6 h-6 text-gray-400" />
+                            </div>
+                            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-200">
+                                <span className="text-blue-600 font-bold">개선 (안전)</span>
+                                <div className="text-right">
+                                    <div className="font-bold text-blue-800 text-lg">기본급 230 + 식대 20 + 연장 50</div>
+                                    <div className="text-xs text-blue-600">법적 수당 모두 포함됨</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
                         <img
                             src="/images/labor/labor_05.png"
                             alt="포괄임금제 설명"
-                            className="w-full h-auto cursor-pointer hover:opacity-95 transition-opacity"
+                            className="w-full h-auto rounded-2xl shadow-lg cursor-pointer hover:opacity-95 transition-opacity"
                             onClick={() => setSelectedImage("/images/labor/labor_05.png")}
                         />
                     </div>
                 </div>
             </section>
 
-            {/* Section 4: Real Proof (Image 1 & 3) */}
-            <section className="bg-slate-50 rounded-3xl p-8 sm:p-12">
-                <div className="text-center mb-10">
-                    <h2 className="text-3xl font-bold text-gray-900 mb-4">실제 관리 사례</h2>
-                    <p className="text-gray-600">대표자가 작성하기 쉬운 양식과 전자 서명 시스템으로 완벽하게 방어합니다.</p>
+            {/* Section 3: Tax Saving */}
+            <section className="space-y-8">
+                <div className="text-center">
+                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-4">
+                        "해결책 2: <span className="text-emerald-600">4대보험료 절감</span>"
+                    </h2>
+                    <p className="text-gray-600 text-lg">
+                        비과세 항목과 정부 지원금을 활용하여 고정 비용을 줄입니다.
+                    </p>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
-                    <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <img
-                            src="/images/labor/labor_02.png"
-                            alt="실제 관리 사례 1"
-                            className="w-full h-auto cursor-pointer hover:opacity-95 transition-opacity"
-                            onClick={() => setSelectedImage("/images/labor/labor_02.png")}
-                        />
+                    <div className="bg-white p-8 rounded-2xl border border-emerald-100 shadow-sm hover:border-emerald-300 transition-colors">
+                        <h3 className="text-xl font-bold text-emerald-800 mb-4 flex items-center gap-2">
+                            <PiggyBank className="w-6 h-6" /> 비과세 수당 활용
+                        </h3>
+                        <p className="text-gray-600 mb-4 leading-relaxed">
+                            식대(20만), 차량유지비(20만), 육아수당(10만) 등은 세금과 4대보험료가 부과되지 않습니다.
+                        </p>
+                        <div className="bg-emerald-50 p-3 rounded-lg text-emerald-700 font-bold text-center">
+                            월 50만원 비과세 시 → 연간 약 60만원 절감
+                        </div>
                     </div>
-                    <div className="rounded-2xl overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300">
-                        <img
-                            src="/images/labor/labor_04.png"
-                            alt="실제 관리 사례 2"
-                            className="w-full h-auto cursor-pointer hover:opacity-95 transition-opacity"
-                            onClick={() => setSelectedImage("/images/labor/labor_04.png")}
-                        />
+                    <div className="bg-white p-8 rounded-2xl border border-emerald-100 shadow-sm hover:border-emerald-300 transition-colors">
+                        <h3 className="text-xl font-bold text-emerald-800 mb-4 flex items-center gap-2">
+                            <TrendingUp className="w-6 h-6" /> 두루누리 지원금
+                        </h3>
+                        <p className="text-gray-600 mb-4 leading-relaxed">
+                            월 보수 270만원 미만 근로자는 국민연금/고용보험의 80%를 국가가 지원합니다.
+                        </p>
+                        <div className="bg-emerald-50 p-3 rounded-lg text-emerald-700 font-bold text-center">
+                            비과세로 소득 낮춰서 지원금 받기 가능!
+                        </div>
+                    </div>
+                </div>
+                <div className="bg-emerald-900 text-white p-6 rounded-2xl text-center">
+                    <span className="text-xl">직원 1인당 연간 <span className="font-bold text-yellow-400">최대 288만원</span>까지 비용을 줄일 수 있습니다.</span>
+                </div>
+            </section>
+
+            {/* Section 4: Subsidies */}
+            <section className="bg-gradient-to-br from-indigo-900 to-purple-900 rounded-3xl p-8 sm:p-16 text-white text-center">
+                <div className="inline-block px-4 py-1.5 mb-6 text-xs font-bold tracking-wider text-yellow-400 uppercase bg-white/10 rounded-full">
+                    놓치면 손해
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-bold mb-10">
+                    "인건비 지원금, <span className="text-yellow-400">다 챙겨받고 계신가요?</span>"
+                </h2>
+
+                <div className="grid md:grid-cols-3 gap-6">
+                    <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+                        <div className="text-4xl mb-4">🌱</div>
+                        <h4 className="font-bold text-xl mb-2">청년일자리도약</h4>
+                        <p className="text-indigo-200 mb-4">만 34세 이하 채용</p>
+                        <div className="text-yellow-400 font-bold text-2xl">
+                            연 720만원
+                        </div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+                        <div className="text-4xl mb-4">👴</div>
+                        <h4 className="font-bold text-xl mb-2">시니어 인턴십</h4>
+                        <p className="text-indigo-200 mb-4">만 60세 이상 채용</p>
+                        <div className="text-yellow-400 font-bold text-2xl">
+                            최대 520만원
+                        </div>
+                    </div>
+                    <div className="bg-white/10 backdrop-blur-sm p-8 rounded-2xl border border-white/10 hover:bg-white/20 transition-colors">
+                        <div className="text-4xl mb-4">🧪</div>
+                        <h4 className="font-bold text-xl mb-2">기업부설연구소</h4>
+                        <p className="text-indigo-200 mb-4">연구 인력 배치</p>
+                        <div className="text-yellow-400 font-bold text-2xl">
+                            세액공제 25%
+                        </div>
                     </div>
                 </div>
             </section>
 
-            {/* CTA Section */}
-            <section className="bg-gradient-to-r from-indigo-600 to-blue-600 rounded-2xl p-8 sm:p-12 text-center text-white shadow-xl">
-                <h2 className="text-2xl sm:text-3xl font-bold mb-6">이제 노무 리스크에서 해방되세요</h2>
-                <p className="text-indigo-100 text-lg mb-8 max-w-2xl mx-auto">
-                    복잡한 법적 문제는 전문가에게 맡기고, 사장님은 사업의 성장에만 집중하실 수 있도록 돕겠습니다.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                    <a
-                        href="https://yslabor.kr/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-white text-indigo-600 font-bold py-4 px-8 rounded-xl shadow-lg hover:bg-indigo-50 transition-colors duration-200 text-lg flex items-center justify-center gap-2"
-                    >
-                        무료 노무 상담 신청하기
-                        <ChevronRight className="w-5 h-5" />
-                    </a>
-                    <a
-                        href="https://www.goyong.co.kr/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="bg-indigo-800 text-white font-bold py-4 px-8 rounded-xl shadow-lg hover:bg-indigo-900 transition-colors duration-200 text-lg flex items-center justify-center gap-2 border border-indigo-400/30"
-                    >
-                        지원금 찾기!
-                        <ChevronRight className="w-5 h-5" />
-                    </a>
-                </div>
-            </section>
+            {/* Company Proposal PDF Link */}
+            <div className="mt-4">
+                <a
+                    href="/files/yunsol_labor_guide.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 w-full bg-white border-2 border-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm group"
+                >
+                    <Download className="w-5 h-5 text-gray-500 group-hover:text-gray-700" />
+                    노무법인 윤솔 회사소개서 및 제안서 확인하기
+                </a>
+            </div>
         </div>
     );
 }
 
-// ----------------------------------------------------------------------
-// 2. Comprehensive Wage Calculator
 // ----------------------------------------------------------------------
 function WageCalculator() {
     const [totalSalary, setTotalSalary] = useState<number>(3000000);
