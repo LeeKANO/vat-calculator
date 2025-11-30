@@ -388,6 +388,83 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                 </div>
                             </div>
 
+                            {/* Expense Target Bar */}
+                            {(() => {
+                                const taxable = Math.max(revenue - expenses - result.laborCost - 1500000 - result.actualYellowUmbrellaDeduction, 0);
+                                let currentBracketIndex = 0;
+                                for (let i = 0; i < TAX_BRACKETS.length; i++) {
+                                    if (taxable <= TAX_BRACKETS[i].limit) {
+                                        currentBracketIndex = i;
+                                        break;
+                                    } else if (TAX_BRACKETS[i].limit === Infinity) {
+                                        currentBracketIndex = i;
+                                    }
+                                }
+
+                                if (currentBracketIndex > 0) {
+                                    const lowerLimit = TAX_BRACKETS[currentBracketIndex - 1].limit;
+                                    const neededExpense = taxable - lowerLimit;
+                                    const currentRate = TAX_BRACKETS[currentBracketIndex].rate * 100;
+                                    const targetRate = TAX_BRACKETS[currentBracketIndex - 1].rate * 100;
+
+                                    // Calculate progress for visual bar (clamped between 0 and 100)
+                                    // We want to show how "close" they are to the lower limit.
+                                    // Let's define the "range" of the current bracket.
+                                    const currentLimit = TAX_BRACKETS[currentBracketIndex].limit === Infinity ? taxable * 1.5 : TAX_BRACKETS[currentBracketIndex].limit;
+                                    const bracketRange = currentLimit - lowerLimit;
+                                    const positionInBracket = taxable - lowerLimit;
+                                    const progressPercentage = Math.min(Math.max((positionInBracket / bracketRange) * 100, 5), 100); // Min 5% for visibility
+
+                                    return (
+                                        <div className="bg-gradient-to-r from-indigo-500 to-purple-600 p-4 rounded-xl shadow-lg text-white relative overflow-hidden">
+                                            <div className="relative z-10">
+                                                <div className="flex justify-between items-end mb-2">
+                                                    <div>
+                                                        <h3 className="text-sm font-bold text-indigo-100 mb-0.5">세율 구간 낮추기</h3>
+                                                        <p className="text-lg font-bold">
+                                                            <span className="text-yellow-300">{formatCurrency(neededExpense)}</span> 더 비용처리하면?
+                                                        </p>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <div className="text-xs text-indigo-200 mb-0.5">세율 변화</div>
+                                                        <div className="text-xl font-extrabold flex items-center gap-1">
+                                                            <span className="opacity-80">{currentRate}%</span>
+                                                            <ArrowRight className="w-4 h-4" />
+                                                            <span className="text-yellow-300">{targetRate}%</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* Progress Bar Container */}
+                                                <div className="h-3 bg-black/20 rounded-full overflow-hidden relative">
+                                                    {/* Target Marker (Left side is the goal) */}
+                                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-yellow-400 z-20 shadow-[0_0_10px_rgba(250,204,21,0.8)]"></div>
+
+                                                    {/* Current Position Bar */}
+                                                    <div
+                                                        className="h-full bg-yellow-300 rounded-r-full transition-all duration-1000 ease-out relative"
+                                                        style={{ width: `${Math.min((neededExpense / (bracketRange * 0.5)) * 100, 100)}%` }}
+                                                    >
+                                                        {/* Pulse effect at the tip */}
+                                                        <div className="absolute right-0 top-0 bottom-0 w-2 bg-white/50 animate-pulse"></div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex justify-between text-[10px] text-indigo-200 mt-1.5 font-medium">
+                                                    <span>▼ {targetRate}% 구간 진입 ({formatCurrency(lowerLimit)})</span>
+                                                    <span>현재 과세표준: {formatCurrency(taxable)}</span>
+                                                </div>
+                                            </div>
+
+                                            {/* Background Decoration */}
+                                            <div className="absolute right-[-20px] bottom-[-20px] opacity-10">
+                                                <TrendingDown className="w-24 h-24" />
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                                return null;
+                            })()}
+
                             {/* 2. 2024/2025 Income Tax Rates Table */}
                             <div className="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                                 <h3 className="text-base font-bold text-gray-800 mb-3">2024/2025 종합소득세 세율표</h3>
