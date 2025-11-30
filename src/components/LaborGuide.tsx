@@ -163,10 +163,10 @@ function LaborGuideContent() {
                                 <ChevronDown className="w-6 h-6 text-gray-400" />
                             </div>
                             <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-200">
-                                <span className="text-blue-600 font-bold">개선 (안전)</span>
+                                <span className="text-blue-600 font-bold whitespace-nowrap mr-2">개선 (안전)</span>
                                 <div className="text-right">
-                                    <div className="font-bold text-blue-800 text-lg">기본급 230 + 식대 20 + 연장 50</div>
-                                    <div className="text-xs text-blue-600">법적 수당 모두 포함됨</div>
+                                    <div className="font-bold text-blue-800 text-lg break-keep leading-tight">기본급 230 + 식대 20 + 연장 50</div>
+                                    <div className="text-xs text-blue-600 mt-1">법적 수당 모두 포함됨</div>
                                 </div>
                             </div>
                         </div>
