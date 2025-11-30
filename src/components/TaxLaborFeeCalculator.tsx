@@ -203,7 +203,7 @@ const TaxLaborFeeCalculator = () => {
                                 <select
                                     value={businessType}
                                     onChange={(e) => setBusinessType(e.target.value as 'general' | 'service')}
-                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-3"
+                                    className="block w-full rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-3 text-gray-900"
                                 >
                                     <option value="general">일반 사업자</option>
                                     <option value="service">교습소/학원/미용실</option>
@@ -214,7 +214,7 @@ const TaxLaborFeeCalculator = () => {
                                 <label className="block text-sm font-semibold text-gray-700">연간 매출액 (VAT 별도)</label>
                                 <div className="flex gap-2">
                                     <select
-                                        className="block w-1/3 rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-3"
+                                        className="block w-1/3 rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-3 text-gray-900"
                                         onChange={handleRevenueChange}
                                         value={revenueOptions.find(opt => opt.value === revenue)?.value || 0}
                                     >
@@ -226,7 +226,7 @@ const TaxLaborFeeCalculator = () => {
                                         type="text"
                                         value={customRevenue ? Number(customRevenue).toLocaleString() : ''}
                                         onChange={handleCustomRevenueChange}
-                                        className="block w-2/3 rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-3 text-right"
+                                        className="block w-2/3 rounded-lg border-gray-300 shadow-sm focus:border-teal-500 focus:ring-teal-500 py-3 text-right text-gray-900"
                                         placeholder="0"
                                     />
                                 </div>
@@ -299,7 +299,7 @@ const TaxLaborFeeCalculator = () => {
                                             setStandardMonthlyInput(val);
                                             setIsStandardMonthlyEdited(true);
                                         }}
-                                        className="w-32 text-right p-1 border-b border-gray-300 bg-transparent focus:border-teal-500 focus:outline-none font-bold text-gray-800"
+                                        className="w-32 text-right p-1 border-b border-gray-300 bg-transparent focus:border-teal-500 focus:outline-none font-bold text-gray-900"
                                     />
                                 </div>
                                 <div className="flex justify-between items-center">
@@ -314,7 +314,7 @@ const TaxLaborFeeCalculator = () => {
                                             setStandardClosingInput(val);
                                             setIsStandardClosingEdited(true);
                                         }}
-                                        className="w-32 text-right p-1 border-b border-gray-300 bg-transparent focus:border-teal-500 focus:outline-none font-bold text-gray-800"
+                                        className="w-32 text-right p-1 border-b border-gray-300 bg-transparent focus:border-teal-500 focus:outline-none font-bold text-gray-900"
                                     />
                                 </div>
                                 <div className="pt-4 border-t border-gray-200">
