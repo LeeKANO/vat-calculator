@@ -611,7 +611,46 @@ const TaxLaborFeeCalculator = () => {
 
 
                         {/* Proposal Images 2-15 */}
-                        {Array.from({ length: 14 }, (_, i) => i + 2).map((num) => (
+                        {/* Proposal Images 2-10 */}
+                        {Array.from({ length: 9 }, (_, i) => i + 2).map((num) => (
+                            <div key={`proposal-${num}`} className="w-full">
+                                <img
+                                    src={`/files/haesol_proposal/haesol_proposal_${num}.jpg`}
+                                    alt={`세무법인 해솔 제안서 ${num}`}
+                                    className="w-full h-auto block"
+                                />
+                            </div>
+                        ))}
+
+                        {/* Chat Screenshots (Moved) */}
+                        <div className="w-full bg-white p-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="rounded-xl overflow-hidden shadow-lg border border-gray-100">
+                                    <img
+                                        src="/images/haesol_chat_1.jpg"
+                                        alt="세무법인 해솔 고객 후기 1"
+                                        className="w-full h-auto"
+                                    />
+                                </div>
+                                <div className="rounded-xl overflow-hidden shadow-lg border border-gray-100">
+                                    <img
+                                        src="/images/haesol_chat_2.jpg"
+                                        alt="세무법인 해솔 고객 후기 2"
+                                        className="w-full h-auto"
+                                    />
+                                </div>
+                                <div className="rounded-xl overflow-hidden shadow-lg border border-gray-100">
+                                    <img
+                                        src="/images/haesol_chat_3.jpg"
+                                        alt="세무법인 해솔 고객 후기 3"
+                                        className="w-full h-auto"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Proposal Images 11-15 */}
+                        {Array.from({ length: 5 }, (_, i) => i + 11).map((num) => (
                             <div key={`proposal-${num}`} className="w-full">
                                 <img
                                     src={`/files/haesol_proposal/haesol_proposal_${num}.jpg`}
@@ -622,6 +661,8 @@ const TaxLaborFeeCalculator = () => {
                         ))}
                     </div>
                 )}
+
+
 
                 {/* Benefit Image */}
                 <div className="mt-8 rounded-xl overflow-hidden shadow-lg">
@@ -642,31 +683,6 @@ const TaxLaborFeeCalculator = () => {
                     <p className="mt-4 text-sm text-indigo-200 opacity-80">
                         * 기장대행 1개월, 전문직 상담, 노무 서식, 마케팅 지원 등 포함
                     </p>
-                </div>
-
-                {/* Chat Screenshots */}
-                <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="rounded-xl overflow-hidden shadow-lg border border-gray-100">
-                        <img
-                            src="/images/haesol_chat_1.jpg"
-                            alt="세무법인 해솔 고객 후기 1"
-                            className="w-full h-auto"
-                        />
-                    </div>
-                    <div className="rounded-xl overflow-hidden shadow-lg border border-gray-100">
-                        <img
-                            src="/images/haesol_chat_2.jpg"
-                            alt="세무법인 해솔 고객 후기 2"
-                            className="w-full h-auto"
-                        />
-                    </div>
-                    <div className="rounded-xl overflow-hidden shadow-lg border border-gray-100">
-                        <img
-                            src="/images/haesol_chat_3.jpg"
-                            alt="세무법인 해솔 고객 후기 3"
-                            className="w-full h-auto"
-                        />
-                    </div>
                 </div>
 
 
