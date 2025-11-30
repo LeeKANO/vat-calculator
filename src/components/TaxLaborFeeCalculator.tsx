@@ -184,12 +184,12 @@ const TaxLaborFeeCalculator = () => {
     return (
         <div className="max-w-4xl mx-auto space-y-8">
             <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-                <div className="bg-gradient-to-r from-teal-600 to-emerald-600 p-6 sm:p-8 text-white">
+                <div className="p-6 sm:p-8">
                     <div className="flex items-center gap-3 mb-2">
-                        <Calculator className="w-8 h-8 text-teal-100" />
-                        <h2 className="text-2xl sm:text-3xl font-bold">세무/노무 비용 계산기</h2>
+                        <Calculator className="w-8 h-8 text-teal-600" />
+                        <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">세무/노무 비용 계산기</h2>
                     </div>
-                    <p className="text-teal-100 text-lg">
+                    <p className="text-gray-600 text-lg">
                         표준 세무 수수료와 비교하여 세무법인 해솔의 혜택을 확인해보세요.
                     </p>
                 </div>
