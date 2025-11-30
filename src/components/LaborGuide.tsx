@@ -55,6 +55,7 @@ export default function LaborGuide() {
 // ----------------------------------------------------------------------
 function LaborGuideContent() {
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [isProposalOpen, setProposalOpen] = useState(false);
 
     return (
         <div className="space-y-16">
@@ -258,17 +259,31 @@ function LaborGuideContent() {
                 </div>
             </section>
 
-            {/* Company Proposal PDF Link */}
+            {/* Company Proposal Accordion */}
             <div className="mt-4">
-                <a
-                    href="/files/yunsol_labor_guide.pdf"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                <button
+                    onClick={() => setProposalOpen(!isProposalOpen)}
                     className="flex items-center justify-center gap-2 w-full bg-white border-2 border-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm group"
                 >
                     <Download className="w-5 h-5 text-gray-500 group-hover:text-gray-700" />
                     노무법인 윤솔 회사소개서 및 제안서 확인하기
-                </a>
+                    {isProposalOpen ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                </button>
+
+                {isProposalOpen && (
+                    <div className="mt-4 space-y-0 animate-in fade-in slide-in-from-top-4 duration-300">
+                        {/* Render 46 images */}
+                        {Array.from({ length: 46 }, (_, i) => i + 1).map((num) => (
+                            <div className="w-full" key={num}>
+                                <img
+                                    src={`/files/노무/25.09.30  노무 발표 자료/25.09.30  노무 발표 자료_${num}.jpg`}
+                                    alt={`노무법인 윤솔 발표자료 ${num}`}
+                                    className="w-full h-auto block"
+                                />
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );
