@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Calculator, Check, AlertCircle, TrendingDown, Edit2, FileText, Download } from 'lucide-react';
+import { Calculator, Check, AlertCircle, TrendingDown, Edit2, FileText, Download, ChevronDown, ChevronUp } from 'lucide-react';
 import Image from 'next/image';
 
 const TaxLaborFeeCalculator = () => {
@@ -20,6 +20,9 @@ const TaxLaborFeeCalculator = () => {
 
     // Reporting Agency States
     const [showReportingAgency, setShowReportingAgency] = useState<boolean>(false);
+
+    // Proposal Accordion State
+    const [isProposalOpen, setIsProposalOpen] = useState<boolean>(false);
 
     // Revenue options for dropdown
     const revenueOptions = [
@@ -552,17 +555,34 @@ const TaxLaborFeeCalculator = () => {
                         </div>
                     </div>
 
-                    {/* Company Proposal PDF Link */}
+                    {/* Company Proposal Images Accordion */}
                     <div className="mt-4">
-                        <a
-                            href="/files/haesol_proposal.pdf"
-                            target="_blank"
-                            rel="noopener noreferrer"
+                        <button
+                            onClick={() => setIsProposalOpen(!isProposalOpen)}
                             className="flex items-center justify-center gap-2 w-full bg-white border-2 border-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm group"
                         >
-                            <Download className="w-5 h-5 text-gray-500 group-hover:text-gray-700" />
-                            세무법인 해솔 회사소개서 및 제안서 확인하기
-                        </a>
+                            <FileText className="w-5 h-5 text-gray-500 group-hover:text-gray-700" />
+                            세무법인 해솔 회사소개서 및 제안서 {isProposalOpen ? '접기' : '펼쳐보기'}
+                            {isProposalOpen ? (
+                                <ChevronUp className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+                            ) : (
+                                <ChevronDown className="w-5 h-5 text-gray-400 group-hover:text-gray-600" />
+                            )}
+                        </button>
+
+                        {isProposalOpen && (
+                            <div className="mt-4 space-y-0 transition-all duration-300 ease-in-out">
+                                {Array.from({ length: 15 }, (_, i) => i + 1).map((num) => (
+                                    <div key={num} className="w-full">
+                                        <img
+                                            src={`/files/haesol_proposal/haesol_proposal_${num}.jpg`}
+                                            alt={`세무법인 해솔 제안서 ${num}`}
+                                            className="w-full h-auto block"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
                     {/* Benefit Image */}
