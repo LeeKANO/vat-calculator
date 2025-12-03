@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { Calculator, TrendingDown, Info, ExternalLink, DollarSign, Search } from 'lucide-react';
+import { Calculator, TrendingDown, Info, ExternalLink, DollarSign, Search, AlertCircle } from 'lucide-react';
 
 const INDUSTRY_RATES = [
     { name: '소매업, 음식점업', rate: 0.15 },
@@ -67,6 +67,8 @@ const VATCalculator: React.FC<VATCalculatorProps> = ({
         setSearchTerm('');
         setIsDropdownOpen(false);
     };
+
+    const SIMPLIFIED_TAXPAYER_THRESHOLD = 104000000;
 
     useEffect(() => {
         calculate();
@@ -249,6 +251,12 @@ const VATCalculator: React.FC<VATCalculatorProps> = ({
                                         />
                                         <span className="absolute right-4 top-3 text-gray-400">원</span>
                                     </div>
+                                    {mode === 'simplified' && revenue >= SIMPLIFIED_TAXPAYER_THRESHOLD && (
+                                        <p className="text-xs text-red-500 mt-1 flex items-center gap-1">
+                                            <Info className="w-3 h-3" />
+                                            매출액 {formatCurrency(SIMPLIFIED_TAXPAYER_THRESHOLD)} 이상은 일반과세자로 전환될 수 있습니다.
+                                        </p>
+                                    )}
                                 </div>
 
                                 <div>
@@ -376,6 +384,12 @@ const VATCalculator: React.FC<VATCalculatorProps> = ({
                                     />
                                     <span className="absolute right-4 top-2.5 text-indigo-400">원</span>
                                 </div>
+                                {mode === 'simplified' && (
+                                    <div className="mt-2 p-2 bg-red-50 border border-red-100 rounded text-xs text-red-600 font-bold flex items-center gap-1">
+                                        <AlertCircle className="w-4 h-4" />
+                                        간이과세자는 부가세 환급 대상이 아닙니다 (납부세액 0원 처리).
+                                    </div>
+                                )}
                             </div>
                             <div className="flex justify-between items-center pt-2 border-t border-indigo-200">
                                 <span className="text-indigo-900 font-medium">예상 환급금 (부가세액)</span>
