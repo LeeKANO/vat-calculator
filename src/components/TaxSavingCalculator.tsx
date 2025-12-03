@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Calculator, TrendingDown, DollarSign, PiggyBank, ArrowRight, CheckCircle, Info, Users, CreditCard, Table } from 'lucide-react';
+import { Calculator, TrendingDown, DollarSign, PiggyBank, ArrowRight, CheckCircle, Info, Users, CreditCard, Table, ChevronDown, ChevronUp } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
 
 // --- Shared Constants & Logic ---
@@ -36,6 +36,8 @@ interface TaxSavingCalculatorProps {
     setFreelancerPayment: (value: number) => void;
     cardSpending: number; // Monthly credit card spending
     setCardSpending: (value: number) => void;
+    industryGroup: 'retail' | 'manufacturing' | 'service';
+    setIndustryGroup: (value: 'retail' | 'manufacturing' | 'service') => void;
     onReset: () => void;
 }
 
@@ -58,6 +60,8 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
     setFreelancerPayment,
     cardSpending,
     setCardSpending,
+    industryGroup,
+    setIndustryGroup,
     onReset
 }) => {
     const [result, setResult] = useState({
@@ -87,14 +91,22 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
     });
 
     const [isDoubleEntry, setIsDoubleEntry] = useState<boolean>(false);
+    const [creditCardSales, setCreditCardSales] = useState<number>(0);
 
     // State for VAT Refund Calculator
     const [refundInput, setRefundInput] = useState<number>(expenses);
     const [refundAmount, setRefundAmount] = useState<number>(0);
+    const [isRefundCalculatorOpen, setIsRefundCalculatorOpen] = useState<boolean>(true);
+
+    useEffect(() => {
+        if (revenue > 0 && creditCardSales === 0) {
+            setCreditCardSales(Math.round(revenue * 0.9));
+        }
+    }, [revenue]);
 
     useEffect(() => {
         calculate();
-    }, [revenue, expenses, vatMode, yellowUmbrella, employeeCount, employeeSalary, freelancerCount, freelancerPayment, cardSpending, isDoubleEntry]);
+    }, [revenue, expenses, vatMode, yellowUmbrella, employeeCount, employeeSalary, freelancerCount, freelancerPayment, cardSpending, isDoubleEntry, industryGroup, creditCardSales]);
 
     useEffect(() => {
         if (expenses > 0 && refundInput === 0) {
@@ -109,6 +121,35 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
     }, [refundInput]);
 
     const calculate = () => {
+        // 0. Pre-check: If Revenue is 0, reset everything
+        if (revenue === 0) {
+            setResult({
+                vat: 0,
+                incomeTax: 0,
+                totalTax: 0,
+                vatSaving: 0,
+                incomeTaxSaving: 0,
+                totalSaving: 0,
+                effectiveRate: 0,
+                netIncome: 0,
+                creditCardDeduction: 0,
+                laborCost: 0,
+                insuranceCost: 0,
+                freelancerCost: 0,
+                cardBenefit: 0,
+                cardPoints: 0,
+                cardDiscount: 0,
+                cardGift: 0,
+                cardAnnualFee: 0,
+                vatPurchaseDeduction: 0,
+                incomeTaxYellowUmbrellaSaving: 0,
+                yellowUmbrellaLimit: 0,
+                actualYellowUmbrellaDeduction: 0,
+                bookkeepingTaxCredit: 0,
+            });
+            return;
+        }
+
         // --- 1. VAT Calculation ---
         let vat = 0;
         let vatSaving = 0;
@@ -129,8 +170,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
             const taxBeforeDeduction = Math.round(revenue * industryRate * 0.1);
             const purchaseDeduction = Math.round(expenses * 0.005);
 
-            const estimatedCreditCardSales = revenue * 0.9;
-            creditCardDeduction = Math.min(Math.round(estimatedCreditCardSales * 0.013), 10000000);
+            creditCardDeduction = Math.min(Math.round(creditCardSales * 0.013), 10000000);
 
             vat = Math.max(taxBeforeDeduction - purchaseDeduction - creditCardDeduction, 0);
             vatSaving = purchaseDeduction + creditCardDeduction;
@@ -168,6 +208,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
             for (let i = 0; i < TAX_BRACKETS.length; i++) {
                 if (taxable <= TAX_BRACKETS[i].limit) {
                     tax = taxable * TAX_BRACKETS[i].rate - TAX_BRACKETS[i].deduction;
+                    break; // IMPORTANT: Break once the correct bracket is found
                 }
             }
             return Math.max(tax, 0);
@@ -193,7 +234,19 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
 
         // 3. Apply Bookkeeping Credit to the Tax WITH YU
         let bookkeepingTaxCredit = 0;
-        if (isDoubleEntry) {
+        let isMandatory = false;
+
+        // Determine Mandatory Status based on Industry Group
+        if (industryGroup === 'retail') {
+            if (revenue >= 300000000) isMandatory = true;
+        } else if (industryGroup === 'manufacturing') {
+            if (revenue >= 150000000) isMandatory = true;
+        } else if (industryGroup === 'service') {
+            if (revenue >= 75000000) isMandatory = true;
+        }
+
+        // Credit applies ONLY if NOT mandatory AND Double Entry is selected AND NOT General Taxpayer
+        if (isDoubleEntry && !isMandatory && vatMode !== 'general') {
             bookkeepingTaxCredit = Math.min(baseTaxWithYU * 0.2, 1000000);
         }
 
@@ -292,6 +345,23 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                         </div>
                                     </div>
                                     <div>
+                                        <label className="block text-xs font-bold text-gray-700 mb-1">신용카드/현금영수증 매출액 (발행공제용)</label>
+                                        <div className="relative">
+                                            <input
+                                                type="text"
+                                                value={creditCardSales === 0 ? '' : creditCardSales.toLocaleString()}
+                                                onChange={(e) => {
+                                                    const val = e.target.value.replace(/,/g, '');
+                                                    if (!isNaN(Number(val))) setCreditCardSales(Number(val));
+                                                }}
+                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold text-sm text-gray-900"
+                                                placeholder="0"
+                                            />
+                                            <span className="absolute right-3 top-2 text-gray-400 text-xs">원</span>
+                                        </div>
+                                        <p className="text-[10px] text-gray-500 mt-0.5">* 카드 사용액(지출)이 아닌 매출액입니다.</p>
+                                    </div>
+                                    <div>
                                         <label className="block text-xs font-bold text-gray-700 mb-1">연간 지출액 (매입+경비)</label>
                                         <div className="relative">
                                             <input
@@ -327,6 +397,33 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                     </div>
 
                                     <div>
+                                        <label className="block text-xs font-bold text-gray-700 mb-1">업종 (복식부기 의무 판단용)</label>
+                                        <div className="grid grid-cols-1 gap-1.5">
+                                            <button
+                                                onClick={() => setIndustryGroup('retail')}
+                                                className={`w-full py-1.5 px-2 rounded-lg font-bold text-xs border text-left flex justify-between items-center ${industryGroup === 'retail' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-gray-200 text-gray-500'}`}
+                                            >
+                                                <span>도소매 등</span>
+                                                <span className="text-[10px] font-normal opacity-70">3억 이상 의무</span>
+                                            </button>
+                                            <button
+                                                onClick={() => setIndustryGroup('manufacturing')}
+                                                className={`w-full py-1.5 px-2 rounded-lg font-bold text-xs border text-left flex justify-between items-center ${industryGroup === 'manufacturing' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-gray-200 text-gray-500'}`}
+                                            >
+                                                <span>제조/음식/숙박 등</span>
+                                                <span className="text-[10px] font-normal opacity-70">1.5억 이상 의무</span>
+                                            </button>
+                                            <button
+                                                onClick={() => setIndustryGroup('service')}
+                                                className={`w-full py-1.5 px-2 rounded-lg font-bold text-xs border text-left flex justify-between items-center ${industryGroup === 'service' ? 'bg-blue-50 border-blue-500 text-blue-700' : 'border-gray-200 text-gray-500'}`}
+                                            >
+                                                <span>서비스/임대 등</span>
+                                                <span className="text-[10px] font-normal opacity-70">7,500만 이상 의무</span>
+                                            </button>
+                                        </div>
+                                    </div>
+
+                                    <div>
                                         <label className="block text-xs font-bold text-gray-700 mb-1">기장 방식 (기장세액공제)</label>
                                         <div className="flex gap-2">
                                             <button
@@ -339,13 +436,38 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                 onClick={() => setIsDoubleEntry(true)}
                                                 className={`flex-1 py-1.5 rounded-lg font-bold text-xs border ${isDoubleEntry ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'border-gray-200 text-gray-500'}`}
                                             >
-                                                복식부기 (20% 공제)
+                                                복식부기
                                             </button>
                                         </div>
                                         {isDoubleEntry && (
-                                            <p className="text-[10px] text-indigo-600 mt-1 font-medium">
-                                                * 산출세액의 20% (최대 100만원) 공제 적용됨
-                                            </p>
+                                            <div className="mt-1">
+                                                {(() => {
+                                                    let isMandatory = false;
+                                                    if (industryGroup === 'retail' && revenue >= 300000000) isMandatory = true;
+                                                    else if (industryGroup === 'manufacturing' && revenue >= 150000000) isMandatory = true;
+                                                    else if (industryGroup === 'service' && revenue >= 75000000) isMandatory = true;
+
+                                                    if (isMandatory) {
+                                                        return (
+                                                            <p className="text-[10px] text-red-500 font-medium flex items-center gap-1">
+                                                                <Info className="w-3 h-3" /> 의무 대상자는 세액공제 제외
+                                                            </p>
+                                                        );
+                                                    } else if (vatMode === 'general') {
+                                                        return (
+                                                            <p className="text-[10px] text-red-500 font-medium flex items-center gap-1">
+                                                                <Info className="w-3 h-3" /> 일반과세자는 세액공제 제외
+                                                            </p>
+                                                        );
+                                                    } else {
+                                                        return (
+                                                            <p className="text-[10px] text-indigo-600 font-medium">
+                                                                * 산출세액의 20% (최대 100만원) 공제 적용됨
+                                                            </p>
+                                                        );
+                                                    }
+                                                })()}
+                                            </div>
                                         )}
                                     </div>
 
@@ -551,39 +673,52 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                             </div>
 
                             {/* 3. VAT Refund Calculator (Moved to Left Column) */}
-                            <div className="bg-blue-50 p-4 rounded-xl border border-blue-200">
-                                <h3 className="text-base font-bold text-blue-800 mb-3 flex items-center gap-2">
-                                    <DollarSign className="w-4 h-4" /> 부가세 환급금 계산기 (단순 계산)
-                                </h3>
-                                <div className="space-y-3">
-                                    <div>
-                                        <label className="block text-xs font-bold text-blue-700 mb-1">지출 금액 (부가세 포함)</label>
-                                        <input
-                                            type="text"
-                                            value={refundInput === 0 ? '' : refundInput.toLocaleString()}
-                                            onChange={(e) => {
-                                                const val = e.target.value.replace(/,/g, '');
-                                                if (!isNaN(Number(val))) setRefundInput(Number(val));
-                                            }}
-                                            className="w-full p-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-right text-sm text-gray-900"
-                                            placeholder="0"
-                                        />
-                                    </div>
-                                    <div className="flex justify-between items-center pt-2 border-t border-blue-200">
-                                        <span className="text-sm text-blue-700">예상 환급금 (부가세액)</span>
-                                        <span className="text-lg font-bold text-blue-600">{formatCurrency(refundAmount)}</span>
-                                    </div>
-                                    <div className="bg-white p-2 rounded-lg border border-blue-100 text-[10px] text-gray-600 space-y-0.5">
-                                        <p className="font-bold text-blue-800 mb-0.5">ⓘ 환급 시기 안내</p>
-                                        <p>• <span className="text-blue-600 font-bold">일반 환급:</span> 확정신고 기한 후 <span className="text-red-500 font-bold">30일 이내</span></p>
-                                        <p>• <span className="text-blue-600 font-bold">조기 환급:</span> 신고 기한 후 <span className="text-red-500 font-bold">15일 이내</span> (수출, 설비투자 등)</p>
-                                        <p className="text-gray-400 mt-0.5">* 일반과세자만 환급 가능 (간이과세자 불가)</p>
-                                        <div className="mt-1 pt-1 border-t border-blue-100 text-blue-800">
-                                            <p>• <span className="font-bold">공급가액</span> = 합계금액 ÷ 1.1</p>
-                                            <p>• <span className="font-bold">부가세액</span> = 합계금액 - 공급가액</p>
+                            <div className="bg-blue-50 rounded-xl border border-blue-200 overflow-hidden">
+                                <button
+                                    onClick={() => setIsRefundCalculatorOpen(!isRefundCalculatorOpen)}
+                                    className="w-full p-4 flex items-center justify-between text-left hover:bg-blue-100/50 transition-colors"
+                                >
+                                    <h3 className="text-base font-bold text-blue-800 flex items-center gap-2">
+                                        <DollarSign className="w-4 h-4" /> 부가세 환급금 계산기 (단순 계산)
+                                    </h3>
+                                    {isRefundCalculatorOpen ? (
+                                        <ChevronUp className="w-5 h-5 text-blue-400" />
+                                    ) : (
+                                        <ChevronDown className="w-5 h-5 text-blue-400" />
+                                    )}
+                                </button>
+
+                                {isRefundCalculatorOpen && (
+                                    <div className="p-4 pt-0 space-y-3 border-t border-blue-100/50">
+                                        <div>
+                                            <label className="block text-xs font-bold text-blue-700 mb-1">지출 금액 (부가세 포함)</label>
+                                            <input
+                                                type="text"
+                                                value={refundInput === 0 ? '' : refundInput.toLocaleString()}
+                                                onChange={(e) => {
+                                                    const val = e.target.value.replace(/,/g, '');
+                                                    if (!isNaN(Number(val))) setRefundInput(Number(val));
+                                                }}
+                                                className="w-full p-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-right text-sm text-gray-900"
+                                                placeholder="0"
+                                            />
+                                        </div>
+                                        <div className="flex justify-between items-center pt-2 border-t border-blue-200">
+                                            <span className="text-sm text-blue-700">예상 환급금 (부가세액)</span>
+                                            <span className="text-lg font-bold text-blue-600">{formatCurrency(refundAmount)}</span>
+                                        </div>
+                                        <div className="bg-white p-2 rounded-lg border border-blue-100 text-[10px] text-gray-600 space-y-0.5">
+                                            <p className="font-bold text-blue-800 mb-0.5">ⓘ 환급 시기 안내</p>
+                                            <p>• <span className="text-blue-600 font-bold">일반 환급:</span> 확정신고 기한 후 <span className="text-red-500 font-bold">30일 이내</span></p>
+                                            <p>• <span className="text-blue-600 font-bold">조기 환급:</span> 신고 기한 후 <span className="text-red-500 font-bold">15일 이내</span> (수출, 설비투자 등)</p>
+                                            <p className="text-gray-400 mt-0.5">* 일반과세자만 환급 가능 (간이과세자 불가)</p>
+                                            <div className="mt-1 pt-1 border-t border-blue-100 text-blue-800">
+                                                <p>• <span className="font-bold">공급가액</span> = 합계금액 ÷ 1.1</p>
+                                                <p>• <span className="font-bold">부가세액</span> = 합계금액 - 공급가액</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                )}
                             </div>
                         </div>
 
