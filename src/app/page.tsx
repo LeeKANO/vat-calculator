@@ -13,10 +13,11 @@ import SupportFundsGuide from '@/components/SupportFundsGuide';
 import DeliveryProfitCalculator from '@/components/DeliveryProfitCalculator';
 import TaxSavingCalculator from '@/components/TaxSavingCalculator';
 import TaxLaborFeeCalculator from '@/components/TaxLaborFeeCalculator';
-import { Calculator, Calendar, DollarSign, Shield, AlertTriangle, Flame, Briefcase, CreditCard, Gift, Bike, PiggyBank, Coins } from 'lucide-react';
+import DoubleEntryBookkeepingGuide from '@/components/DoubleEntryBookkeepingGuide';
+import { Calculator, Calendar, DollarSign, Shield, AlertTriangle, Flame, Briefcase, CreditCard, Gift, Bike, PiggyBank, Coins, BookOpen } from 'lucide-react';
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<'vat' | 'income' | 'schedule' | 'yellow' | 'penalty' | 'fire' | 'labor' | 'card' | 'support' | 'delivery' | 'saving' | 'fee'>('schedule');
+  const [activeTab, setActiveTab] = useState<'vat' | 'income' | 'schedule' | 'yellow' | 'penalty' | 'fire' | 'labor' | 'card' | 'support' | 'delivery' | 'saving' | 'fee' | 'bookkeeping'>('schedule');
 
   // Global Shared State
   const [globalRevenue, setGlobalRevenue] = useState<number>(0);
@@ -219,6 +220,16 @@ export default function Home() {
             <Coins className="w-4 h-4 sm:w-5 sm:h-5" />
             세무비용
           </button>
+          <button
+            onClick={() => setActiveTab('bookkeeping')}
+            className={`w-full py-3 px-3 rounded-lg font-bold text-sm sm:text-base transition-all flex items-center justify-center gap-2 whitespace-nowrap
+              ${activeTab === 'bookkeeping'
+                ? 'bg-blue-50 text-blue-600 shadow-sm ring-1 ring-blue-200'
+                : 'text-gray-500 hover:bg-gray-50'}`}
+          >
+            <BookOpen className="w-4 h-4 sm:w-5 sm:h-5" />
+            복식부기
+          </button>
         </div>
 
         {/* Content Area */}
@@ -296,6 +307,7 @@ export default function Home() {
           {activeTab === 'support' && <SupportFundsGuide />}
           {activeTab === 'delivery' && <DeliveryProfitCalculator />}
           {activeTab === 'fee' && <TaxLaborFeeCalculator />}
+          {activeTab === 'bookkeeping' && <DoubleEntryBookkeepingGuide />}
         </div>
       </div>
     </main>
