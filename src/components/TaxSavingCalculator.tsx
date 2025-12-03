@@ -83,7 +83,10 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
         incomeTaxYellowUmbrellaSaving: 0,
         yellowUmbrellaLimit: 0,
         actualYellowUmbrellaDeduction: 0,
+        bookkeepingTaxCredit: 0,
     });
+
+    const [isDoubleEntry, setIsDoubleEntry] = useState<boolean>(false);
 
     // State for VAT Refund Calculator
     const [refundInput, setRefundInput] = useState<number>(expenses);
@@ -91,7 +94,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
 
     useEffect(() => {
         calculate();
-    }, [revenue, expenses, vatMode, yellowUmbrella, employeeCount, employeeSalary, freelancerCount, freelancerPayment, cardSpending]);
+    }, [revenue, expenses, vatMode, yellowUmbrella, employeeCount, employeeSalary, freelancerCount, freelancerPayment, cardSpending, isDoubleEntry]);
 
     useEffect(() => {
         if (expenses > 0 && refundInput === 0) {
@@ -165,18 +168,41 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
             for (let i = 0; i < TAX_BRACKETS.length; i++) {
                 if (taxable <= TAX_BRACKETS[i].limit) {
                     tax = taxable * TAX_BRACKETS[i].rate - TAX_BRACKETS[i].deduction;
-                    break;
-                } else if (TAX_BRACKETS[i].limit === Infinity) {
-                    tax = taxable * TAX_BRACKETS[i].rate - TAX_BRACKETS[i].deduction;
                 }
             }
-            return Math.max(tax, 0) * 1.1; // Include Local Tax (10%)
+            return Math.max(tax, 0);
         };
 
-        const currentIncomeTax = calculateIncomeTax(actualYellowUmbrellaDeduction);
-        const noSavingIncomeTax = calculateIncomeTax(0);
+        // 1. Calculate Tax WITHOUT Yellow Umbrella (for comparison)
+        const baseTaxNoYU = calculateIncomeTax(0);
+        const localTaxNoYU = Math.floor(baseTaxNoYU * 0.1);
+        const totalTaxNoYU = baseTaxNoYU + localTaxNoYU;
 
-        const incomeTaxSaving = noSavingIncomeTax - currentIncomeTax;
+        // 2. Calculate Tax WITH Yellow Umbrella (Base for current scenario)
+        const baseTaxWithYU = calculateIncomeTax(actualYellowUmbrellaDeduction);
+
+        // Pure Yellow Umbrella Saving (Tax No YU - Tax With YU)
+        const localTaxWithYU_NoCredit = Math.floor(baseTaxWithYU * 0.1);
+        const totalTaxWithYU_NoCredit = baseTaxWithYU + localTaxWithYU_NoCredit;
+        let pureYUSaving = totalTaxNoYU - totalTaxWithYU_NoCredit;
+
+        // Defensive check: If no Yellow Umbrella payment, saving must be 0
+        if (yellowUmbrella === 0) {
+            pureYUSaving = 0;
+        }
+
+        // 3. Apply Bookkeeping Credit to the Tax WITH YU
+        let bookkeepingTaxCredit = 0;
+        if (isDoubleEntry) {
+            bookkeepingTaxCredit = Math.min(baseTaxWithYU * 0.2, 1000000);
+        }
+
+        const finalIncomeTax = Math.max(baseTaxWithYU - bookkeepingTaxCredit, 0);
+        const localTax = Math.floor(finalIncomeTax * 0.1);
+        const currentIncomeTax = finalIncomeTax + localTax;
+
+        // Total Saving (compared to No YU, No Credit)
+        const incomeTaxSaving = totalTaxNoYU - currentIncomeTax;
 
         // --- 3. Card Benefit Calculation ---
         const annualCardSpend = cardSpending * 12;
@@ -211,9 +237,10 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
             cardGift,
             cardAnnualFee,
             vatPurchaseDeduction,
-            incomeTaxYellowUmbrellaSaving: incomeTaxSaving,
+            incomeTaxYellowUmbrellaSaving: pureYUSaving,
             yellowUmbrellaLimit,
             actualYellowUmbrellaDeduction,
+            bookkeepingTaxCredit,
         });
     };
 
@@ -297,6 +324,29 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                 간이과세자
                                             </button>
                                         </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-xs font-bold text-gray-700 mb-1">기장 방식 (기장세액공제)</label>
+                                        <div className="flex gap-2">
+                                            <button
+                                                onClick={() => setIsDoubleEntry(false)}
+                                                className={`flex-1 py-1.5 rounded-lg font-bold text-xs border ${!isDoubleEntry ? 'bg-gray-100 border-gray-300 text-gray-600' : 'border-gray-200 text-gray-400'}`}
+                                            >
+                                                간편장부
+                                            </button>
+                                            <button
+                                                onClick={() => setIsDoubleEntry(true)}
+                                                className={`flex-1 py-1.5 rounded-lg font-bold text-xs border ${isDoubleEntry ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'border-gray-200 text-gray-500'}`}
+                                            >
+                                                복식부기 (20% 공제)
+                                            </button>
+                                        </div>
+                                        {isDoubleEntry && (
+                                            <p className="text-[10px] text-indigo-600 mt-1 font-medium">
+                                                * 산출세액의 20% (최대 100만원) 공제 적용됨
+                                            </p>
+                                        )}
                                     </div>
 
                                     {/* Employee & Freelancer Inputs */}
@@ -797,6 +847,18 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                             <span className="text-gray-500">인건비 비용처리 ({formatCurrency(result.laborCost)})</span>
                                             <span className="font-bold text-green-600">비용인정</span>
                                         </li>
+
+                                    )}
+                                    {result.bookkeepingTaxCredit > 0 && (
+                                        <li className="flex justify-between items-center">
+                                            <span className="text-gray-500">기장세액공제 (복식부기)</span>
+                                            <span className="font-bold text-green-600">-{formatCurrency(result.bookkeepingTaxCredit * 1.1)}</span>
+                                        </li>
+                                    )}
+                                    {result.bookkeepingTaxCredit > 0 && (
+                                        <li className="text-[10px] text-gray-400 text-right pt-0.5">
+                                            (지방소득세 절감 포함)
+                                        </li>
                                     )}
                                     <li className="flex justify-between items-center">
                                         <span className="text-gray-500">기본 공제</span>
@@ -881,7 +943,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
