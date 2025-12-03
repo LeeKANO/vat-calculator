@@ -45,6 +45,7 @@ export default function Home() {
 
   // TaxSavingCalculator specific states
   const [savingVatMode, setSavingVatMode] = useState<'general' | 'simplified'>('general');
+  const [industryGroup, setIndustryGroup] = useState<'retail' | 'manufacturing' | 'service'>('retail');
 
   // Reset functions
   const resetVAT = () => {
@@ -83,6 +84,7 @@ export default function Home() {
     setGlobalFreelancerCount(0);
     setGlobalFreelancerPayment(0);
     setGlobalCardSpending(0);
+    setIndustryGroup('retail');
   };
 
   return (
@@ -286,6 +288,8 @@ export default function Home() {
             setFreelancerPayment={setGlobalFreelancerPayment}
             cardSpending={globalCardSpending}
             setCardSpending={setGlobalCardSpending}
+            industryGroup={industryGroup}
+            setIndustryGroup={setIndustryGroup}
             onReset={resetSaving}
           />}
           {activeTab === 'yellow' && <YellowUmbrellaGuide
