@@ -13,10 +13,14 @@ const TaxLaborFeeCalculator = () => {
     const [standardClosingInput, setStandardClosingInput] = useState<number>(300000);
     const [isStandardMonthlyEdited, setIsStandardMonthlyEdited] = useState<boolean>(false);
     const [isStandardClosingEdited, setIsStandardClosingEdited] = useState<boolean>(false);
+    const [standardFilingInput, setStandardFilingInput] = useState<number>(0);
+    const [isStandardFilingEdited, setIsStandardFilingEdited] = useState<boolean>(false);
 
     // Discounted Fee States (Editable)
     const [discountedMonthlyInput, setDiscountedMonthlyInput] = useState<number>(55000);
     const [isDiscountedMonthlyEdited, setIsDiscountedMonthlyEdited] = useState<boolean>(false);
+    const [discountedFilingInput, setDiscountedFilingInput] = useState<number>(0);
+    const [isDiscountedFilingEdited, setIsDiscountedFilingEdited] = useState<boolean>(false);
 
     // Reporting Agency States
     const [showReportingAgency, setShowReportingAgency] = useState<boolean>(false);
@@ -154,7 +158,11 @@ const TaxLaborFeeCalculator = () => {
         if (!isDiscountedMonthlyEdited) {
             setDiscountedMonthlyInput(calculateDiscountedMonthly(revenue, hasLabor, businessType));
         }
-    }, [revenue, hasLabor, businessType, isStandardMonthlyEdited, isStandardClosingEdited, isDiscountedMonthlyEdited]);
+        // Filing fees default to 0, no auto-calc needed unless specified, but we reset if revenue changes?
+        // Keeping them as is or resetting to 0 could be an option. For now, let's keep them manual or 0.
+        if (!isStandardFilingEdited) setStandardFilingInput(0);
+        if (!isDiscountedFilingEdited) setDiscountedFilingInput(0);
+    }, [revenue, hasLabor, businessType, isStandardMonthlyEdited, isStandardClosingEdited, isDiscountedMonthlyEdited, isStandardFilingEdited, isDiscountedFilingEdited]);
 
     const handleRevenueChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const val = Number(e.target.value);
@@ -162,7 +170,9 @@ const TaxLaborFeeCalculator = () => {
         // Reset edit flags when revenue changes via dropdown to auto-update standard fees
         setIsStandardMonthlyEdited(false);
         setIsStandardClosingEdited(false);
+        setIsStandardFilingEdited(false);
         setIsDiscountedMonthlyEdited(false);
+        setIsDiscountedFilingEdited(false);
     };
 
     const handleCustomRevenueChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,13 +183,21 @@ const TaxLaborFeeCalculator = () => {
         // Reset edit flags when revenue changes via input
         setIsStandardMonthlyEdited(false);
         setIsStandardClosingEdited(false);
+        setIsStandardFilingEdited(false);
         setIsDiscountedMonthlyEdited(false);
+        setIsDiscountedFilingEdited(false);
     };
 
     const discountedClosing = calculateDiscountedClosing(revenue, businessType);
 
     const monthlySavings = standardMonthlyInput - discountedMonthlyInput;
     const closingSavings = standardClosingInput - discountedClosing;
+    // Filing fees are now separate/removed from total calculation or just displayed separately
+    // The user asked to "remove the filing agency fee" row and "add a price table separately".
+    // So we should probably remove them from the total savings calculation if they are no longer part of the comparison in the same way,
+    // OR if the user just wants the visual row changed but the math kept?
+    // "신고대리비용을 삭제해줘" (Delete the filing agency fee) implies removing it from the calculation too, or at least the input.
+    // Since we removed the inputs, we should remove them from the total.
     const totalAnnualSavings = (monthlySavings * 12) + closingSavings;
 
     const formatCurrency = (val: number) => {
@@ -265,107 +283,124 @@ const TaxLaborFeeCalculator = () => {
                                     </label>
                                 </div>
                             </div>
+
+                            <div className="bg-teal-50 rounded-lg p-4 border border-teal-100">
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-sm font-medium text-teal-800">부가세 신고</span>
+                                    <span className="text-sm font-bold text-teal-700">100,000원</span>
+                                </div>
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="text-sm font-medium text-teal-800">종합소득세 신고</span>
+                                    <span className="text-sm font-bold text-teal-700">200,000원</span>
+                                </div>
+                                <div className="text-right text-xs text-teal-600 font-medium">
+                                    (부가세 별도)
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
+                {/* Result Comparison */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Standard Fee Card (Left) */}
+                    <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-bold text-gray-700">일반 세무사무실 평균</h3>
+                            <span className="text-xs font-medium bg-gray-200 text-gray-600 px-2 py-1 rounded">직접 수정 가능</span>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-600 flex items-center gap-1">
+                                    월 기장료 <Edit2 className="w-3 h-3 text-gray-400" />
+                                </span>
+                                <input
+                                    type="text"
+                                    value={standardMonthlyInput.toLocaleString()}
+                                    onChange={(e) => {
+                                        const val = Number(e.target.value.replace(/[^0-9]/g, ''));
+                                        setStandardMonthlyInput(val);
+                                        setIsStandardMonthlyEdited(true);
+                                    }}
+                                    className="w-32 text-right p-1 border-b border-gray-300 bg-transparent focus:border-gray-500 focus:outline-none text-xl font-bold text-gray-800"
+                                />
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-600 flex items-center gap-1">
+                                    조정료 (연 1회) <Edit2 className="w-3 h-3 text-gray-400" />
+                                </span>
+                                <input
+                                    type="text"
+                                    value={standardClosingInput.toLocaleString()}
+                                    onChange={(e) => {
+                                        const val = Number(e.target.value.replace(/[^0-9]/g, ''));
+                                        setStandardClosingInput(val);
+                                        setIsStandardClosingEdited(true);
+                                    }}
+                                    className="w-32 text-right p-1 border-b border-gray-300 bg-transparent focus:border-gray-500 focus:outline-none text-xl font-bold text-gray-800"
+                                />
+                            </div>
+                            <div className="pt-4 border-t border-gray-200">
+                                <div className="flex justify-between items-center">
+                                    <span className="font-semibold text-gray-700">연간 총 비용</span>
+                                    <span className="text-2xl font-bold text-gray-800">{formatCurrency(standardMonthlyInput * 12 + standardClosingInput)}</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    {/* Result Comparison */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Standard Fee Card (Left) */}
-                        <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-bold text-gray-700">일반 세무사무실 평균</h3>
-                                <span className="text-xs font-medium bg-gray-200 text-gray-600 px-2 py-1 rounded">직접 수정 가능</span>
-                            </div>
-                            <div className="space-y-4">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600 flex items-center gap-1">
-                                        월 기장료 <Edit2 className="w-3 h-3 text-gray-400" />
-                                    </span>
-                                    <input
-                                        type="text"
-                                        value={standardMonthlyInput.toLocaleString()}
-                                        onChange={(e) => {
-                                            const val = Number(e.target.value.replace(/[^0-9]/g, ''));
-                                            setStandardMonthlyInput(val);
-                                            setIsStandardMonthlyEdited(true);
-                                        }}
-                                        className="w-32 text-right p-1 border-b border-gray-300 bg-transparent focus:border-gray-500 focus:outline-none text-xl font-bold text-gray-800"
-                                    />
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-600 flex items-center gap-1">
-                                        조정료 (연 1회) <Edit2 className="w-3 h-3 text-gray-400" />
-                                    </span>
-                                    <input
-                                        type="text"
-                                        value={standardClosingInput.toLocaleString()}
-                                        onChange={(e) => {
-                                            const val = Number(e.target.value.replace(/[^0-9]/g, ''));
-                                            setStandardClosingInput(val);
-                                            setIsStandardClosingEdited(true);
-                                        }}
-                                        className="w-32 text-right p-1 border-b border-gray-300 bg-transparent focus:border-gray-500 focus:outline-none text-xl font-bold text-gray-800"
-                                    />
-                                </div>
-                                <div className="pt-4 border-t border-gray-200">
-                                    <div className="flex justify-between items-center">
-                                        <span className="font-semibold text-gray-700">연간 총 비용</span>
-                                        <span className="text-2xl font-bold text-gray-800">{formatCurrency(standardMonthlyInput * 12 + standardClosingInput)}</span>
-                                    </div>
-                                </div>
-                            </div>
+                    {/* Haesol Fee Card (Right) */}
+                    <div className="bg-teal-50 rounded-xl p-6 border-2 border-teal-500 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
+                            BEST CHOICE
                         </div>
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-bold text-teal-700">세무법인 해솔</h3>
+                            <span className="text-xs font-medium bg-teal-200 text-teal-700 px-2 py-1 rounded">직접 수정 가능</span>
+                        </div>
+                        <div className="space-y-4">
+                            <div className="flex justify-between items-center">
+                                <span className="text-teal-800 flex items-center gap-1">
+                                    월 기장료 <Edit2 className="w-3 h-3 text-teal-400" />
+                                </span>
+                                <div className="text-right">
+                                    <div className="text-xs text-red-500 font-medium mb-0.5">
+                                        (월 {formatCurrency(monthlySavings)} 절약)
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={discountedMonthlyInput.toLocaleString()}
+                                        onChange={(e) => {
+                                            const val = Number(e.target.value.replace(/[^0-9]/g, ''));
+                                            setDiscountedMonthlyInput(val);
+                                            setIsDiscountedMonthlyEdited(true);
+                                        }}
+                                        className="w-32 text-right p-1 border-b border-teal-300 bg-transparent focus:border-teal-500 focus:outline-none text-xl font-bold text-teal-700"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-teal-800">조정료 (연 1회)</span>
+                                <div className="text-right">
+                                    <div className="text-xs text-red-500 font-medium mb-0.5">
+                                        ({formatCurrency(closingSavings)} 절약)
+                                    </div>
+                                    <span className="text-xl font-bold text-teal-700">{formatCurrency(discountedClosing)}</span>
+                                </div>
+                            </div>
 
-                        {/* Haesol Fee Card (Right) */}
-                        <div className="bg-teal-50 rounded-xl p-6 border-2 border-teal-500 relative overflow-hidden">
-                            <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg">
-                                BEST CHOICE
-                            </div>
-                            <div className="flex items-center justify-between mb-4">
-                                <h3 className="text-lg font-bold text-teal-700">세무법인 해솔</h3>
-                                <span className="text-xs font-medium bg-teal-200 text-teal-700 px-2 py-1 rounded">직접 수정 가능</span>
-                            </div>
-                            <div className="space-y-4">
+                            <div className="pt-4 border-t border-teal-200">
                                 <div className="flex justify-between items-center">
-                                    <span className="text-teal-800 flex items-center gap-1">
-                                        월 기장료 <Edit2 className="w-3 h-3 text-teal-400" />
-                                    </span>
-                                    <div className="text-right">
-                                        <div className="text-xs text-red-500 font-medium mb-0.5">
-                                            (월 {formatCurrency(monthlySavings)} 절약)
-                                        </div>
-                                        <input
-                                            type="text"
-                                            value={discountedMonthlyInput.toLocaleString()}
-                                            onChange={(e) => {
-                                                const val = Number(e.target.value.replace(/[^0-9]/g, ''));
-                                                setDiscountedMonthlyInput(val);
-                                                setIsDiscountedMonthlyEdited(true);
-                                            }}
-                                            className="w-32 text-right p-1 border-b border-teal-300 bg-transparent focus:border-teal-500 focus:outline-none text-xl font-bold text-teal-700"
-                                        />
-                                    </div>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-teal-800">조정료 (연 1회)</span>
-                                    <div className="text-right">
-                                        <div className="text-xs text-red-500 font-medium mb-0.5">
-                                            ({formatCurrency(closingSavings)} 절약)
-                                        </div>
-                                        <span className="text-xl font-bold text-teal-700">{formatCurrency(discountedClosing)}</span>
-                                    </div>
-                                </div>
-                                <div className="pt-4 border-t border-teal-200">
-                                    <div className="flex justify-between items-center">
-                                        <span className="font-semibold text-teal-900">연간 총 비용</span>
-                                        <span className="text-2xl font-bold text-teal-700">{formatCurrency(discountedMonthlyInput * 12 + discountedClosing)}</span>
-                                    </div>
+                                    <span className="font-semibold text-teal-900">연간 총 비용</span>
+                                    <span className="text-2xl font-bold text-teal-700">{formatCurrency(discountedMonthlyInput * 12 + discountedClosing)}</span>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+
 
             {/* Total Savings */}
             <div className="bg-gradient-to-r from-red-500 to-pink-600 rounded-xl p-6 text-white shadow-lg transform transition-all hover:scale-[1.01]">
@@ -687,7 +722,7 @@ const TaxLaborFeeCalculator = () => {
 
 
             </div>
-        </div>
+        </div >
     );
 };
 
