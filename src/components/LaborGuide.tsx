@@ -54,31 +54,14 @@ export default function LaborGuide() {
 // 1. Persuasive Labor Guide Content (Flat Version)
 // ----------------------------------------------------------------------
 function LaborGuideContent() {
-    const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [isProposalOpen, setProposalOpen] = useState(false);
+
+
+
 
     return (
         <div className="space-y-16">
-            {/* Image Lightbox Modal */}
-            {selectedImage && (
-                <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 animate-in fade-in duration-200"
-                    onClick={() => setSelectedImage(null)}
-                >
-                    <button
-                        onClick={() => setSelectedImage(null)}
-                        className="absolute top-4 right-4 text-white/70 hover:text-white transition-colors"
-                    >
-                        <X className="w-8 h-8" />
-                    </button>
-                    <img
-                        src={selectedImage}
-                        alt="Full size"
-                        className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
-                        onClick={(e) => e.stopPropagation()}
-                    />
-                </div>
-            )}
+
 
             {/* HERO Section */}
             <section className="relative overflow-hidden rounded-2xl bg-slate-900 text-white p-8 sm:p-16 text-center shadow-2xl">
@@ -108,31 +91,18 @@ function LaborGuideContent() {
                     <p className="text-gray-600 mt-2">지금 대비하지 않으면 큰 손실로 이어질 수 있습니다.</p>
                 </div>
 
-                <div className="grid lg:grid-cols-2 gap-8 items-center">
-                    <div className="space-y-4">
-                        <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm hover:shadow-md transition-shadow">
-                            <h4 className="font-bold text-red-800 mb-2 text-lg">1. 급여명세서 미발송</h4>
-                            <p className="text-gray-600">단순 미발송도 건당 과태료 부과, 최대 500만원까지 부과될 수 있습니다.</p>
-                        </div>
-                        <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm hover:shadow-md transition-shadow">
-                            <h4 className="font-bold text-red-800 mb-2 text-lg">2. 임금 체불 (포괄임금제 미비)</h4>
-                            <p className="text-gray-600">월급을 다 줬어도, 기본급과 수당을 구분하지 않으면 연장/야간 수당을 또 줘야 할 수 있습니다.</p>
-                        </div>
-                        <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm hover:shadow-md transition-shadow">
-                            <h4 className="font-bold text-red-800 mb-2 text-lg">3. 부당 해고 분쟁</h4>
-                            <p className="text-gray-600">"내일부터 나오지 마" 한마디에 해고예고수당(1개월) + 부당해고 구제(수개월치 임금) 폭탄을 맞습니다.</p>
-                        </div>
+                <div className="space-y-4">
+                    <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm hover:shadow-md transition-shadow">
+                        <h4 className="font-bold text-red-800 mb-2 text-lg">1. 급여명세서 미발송</h4>
+                        <p className="text-gray-600">단순 미발송도 건당 과태료 부과, 최대 500만원까지 부과될 수 있습니다.</p>
                     </div>
-                    <div>
-                        <div className="relative rounded-2xl overflow-hidden shadow-xl border-4 border-white transform hover:scale-[1.02] transition-transform duration-300">
-                            <img
-                                src="/images/labor/labor_01.png"
-                                alt="노무 리스크"
-                                className="w-full h-auto object-cover cursor-pointer"
-                                onClick={() => setSelectedImage("/images/labor/labor_01.png")}
-                            />
-                        </div>
-                        <p className="text-center text-sm text-gray-500 mt-3">▲ 클릭하여 확대보기 (표준계약서 vs 방어형 계약서)</p>
+                    <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm hover:shadow-md transition-shadow">
+                        <h4 className="font-bold text-red-800 mb-2 text-lg">2. 임금 체불 (포괄임금제 미비)</h4>
+                        <p className="text-gray-600">월급을 다 줬어도, 기본급과 수당을 구분하지 않으면 연장/야간 수당을 또 줘야 할 수 있습니다.</p>
+                    </div>
+                    <div className="bg-white p-6 rounded-2xl border border-red-100 shadow-sm hover:shadow-md transition-shadow">
+                        <h4 className="font-bold text-red-800 mb-2 text-lg">3. 부당 해고 분쟁</h4>
+                        <p className="text-gray-600">"내일부터 나오지 마" 한마디에 해고예고수당(1개월) + 부당해고 구제(수개월치 임금) 폭탄을 맞습니다.</p>
                     </div>
                 </div>
             </section>
@@ -148,36 +118,26 @@ function LaborGuideContent() {
                     </p>
                 </div>
 
-                <div className="grid lg:grid-cols-2 gap-8 items-center">
-                    <div className="bg-white p-8 rounded-2xl shadow-sm border border-blue-100">
-                        <h4 className="font-bold text-blue-900 mb-6 text-center text-lg">임금 쪼개기 예시 (월 300만원 기준)</h4>
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                                <span className="text-gray-500 font-medium">기존 (위험)</span>
-                                <div className="text-right">
-                                    <div className="font-bold text-red-500 text-lg">기본급 300만원</div>
-                                    <div className="text-xs text-red-400">연장수당 별도 청구 위험</div>
-                                </div>
-                            </div>
-                            <div className="flex justify-center">
-                                <ChevronDown className="w-6 h-6 text-gray-400" />
-                            </div>
-                            <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-200">
-                                <span className="text-blue-600 font-bold whitespace-nowrap mr-2">개선 (안전)</span>
-                                <div className="text-right">
-                                    <div className="font-bold text-blue-800 text-lg break-keep leading-tight">기본급 230 + 식대 20 + 연장 50</div>
-                                    <div className="text-xs text-blue-600 mt-1">법적 수당 모두 포함됨</div>
-                                </div>
+                <div className="bg-white p-8 rounded-2xl shadow-sm border border-blue-100">
+                    <h4 className="font-bold text-blue-900 mb-6 text-center text-lg">임금 쪼개기 예시 (월 300만원 기준)</h4>
+                    <div className="space-y-4">
+                        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                            <span className="text-gray-500 font-medium">기존 (위험)</span>
+                            <div className="text-right">
+                                <div className="font-bold text-red-500 text-lg">기본급 300만원</div>
+                                <div className="text-xs text-red-400">연장수당 별도 청구 위험</div>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        <img
-                            src="/images/labor/labor_05.png"
-                            alt="포괄임금제 설명"
-                            className="w-full h-auto rounded-2xl shadow-lg cursor-pointer hover:opacity-95 transition-opacity"
-                            onClick={() => setSelectedImage("/images/labor/labor_05.png")}
-                        />
+                        <div className="flex justify-center">
+                            <ChevronDown className="w-6 h-6 text-gray-400" />
+                        </div>
+                        <div className="flex items-center justify-between p-4 bg-blue-50 rounded-xl border border-blue-200">
+                            <span className="text-blue-600 font-bold whitespace-nowrap mr-2">개선 (안전)</span>
+                            <div className="text-right">
+                                <div className="font-bold text-blue-800 text-lg break-keep leading-tight">기본급 230 + 식대 20 + 연장 50</div>
+                                <div className="text-xs text-blue-600 mt-1">법적 수당 모두 포함됨</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -273,7 +233,14 @@ function LaborGuideContent() {
                 {isProposalOpen && (
                     <div className="mt-4 space-y-0 animate-in fade-in slide-in-from-top-4 duration-300">
                         {/* Render 46 images */}
-                        {Array.from({ length: 46 }, (_, i) => i + 1).map((num) => (
+                        {/* Render available images (excluding missing 2, 22, 24) */}
+                        {[
+                            1, 3, 4, 5, 6, 7, 8, 9, 10,
+                            11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+                            21, 23, 25, 26, 27, 28, 29, 30,
+                            31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+                            41, 42, 43, 44, 45, 46
+                        ].map((num) => (
                             <div className="w-full" key={num}>
                                 <img
                                     src={`/files/노무/25.09.30  노무 발표 자료/25.09.30  노무 발표 자료_${num}.jpg`}
@@ -285,6 +252,8 @@ function LaborGuideContent() {
                     </div>
                 )}
             </div>
+
+
         </div>
     );
 }
