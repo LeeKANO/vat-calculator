@@ -26,7 +26,11 @@ const TaxLaborFeeCalculator = () => {
     const [showReportingAgency, setShowReportingAgency] = useState<boolean>(false);
 
     // Proposal Accordion State
+    // Proposal Accordion State
     const [isProposalOpen, setIsProposalOpen] = useState<boolean>(false);
+
+    // Payment Period State
+    const [period, setPeriod] = useState<number>(1);
 
 
 
@@ -198,7 +202,9 @@ const TaxLaborFeeCalculator = () => {
     // OR if the user just wants the visual row changed but the math kept?
     // "신고대리비용을 삭제해줘" (Delete the filing agency fee) implies removing it from the calculation too, or at least the input.
     // Since we removed the inputs, we should remove them from the total.
-    const totalAnnualSavings = (monthlySavings * 12) + closingSavings;
+    // "신고대리비용을 삭제해줘" (Delete the filing agency fee) implies removing it from the calculation too, or at least the input.
+    // Since we removed the inputs, we should remove them from the total.
+    const totalAnnualSavings = ((monthlySavings * 12) + closingSavings) * period;
 
     const formatCurrency = (val: number) => {
         return new Intl.NumberFormat('ko-KR', { style: 'currency', currency: 'KRW' }).format(val).replace('₩', '') + '원';
@@ -302,8 +308,8 @@ const TaxLaborFeeCalculator = () => {
                     </div>
                 </div>
 
-                {/* Result Comparison */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Comparison Cards Grid */}
+                <div className="grid grid-cols-2 gap-6 pt-4 border-t border-gray-100">
                     {/* Standard Fee Card (Left) */}
                     <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
                         <div className="flex items-center justify-between mb-4">
@@ -401,32 +407,64 @@ const TaxLaborFeeCalculator = () => {
                 </div>
             </div>
 
+            {/* Payment Period Slider */}
+            <div className="bg-white rounded-xl p-8 border border-gray-100 shadow-sm mb-8">
+                <div className="mb-6">
+                    <label className="text-xl font-bold text-gray-800 flex items-center gap-3">
+                        납입 기간 (년)
+                        <span className="text-base font-bold text-teal-600 bg-teal-50 px-3 py-1 rounded-full border border-teal-100">
+                            {period}년
+                        </span>
+                    </label>
+                </div>
+                <div className="relative pt-6 pb-2 px-2">
+                    <input
+                        type="range"
+                        min="1"
+                        max="30"
+                        step="1"
+                        value={period}
+                        onChange={(e) => setPeriod(Number(e.target.value))}
+                        className="w-full h-4 bg-gray-100 rounded-lg appearance-none cursor-pointer accent-yellow-400 hover:accent-yellow-500 transition-all"
+                    />
+                    <div className="flex justify-between text-sm text-gray-400 mt-3 font-medium px-1">
+                        <span>1년</span>
+                        <span>10년</span>
+                        <span>30년</span>
+                    </div>
+                </div>
+            </div >
 
             {/* Total Savings */}
-            <div className="bg-gradient-to-r from-red-500 to-pink-600 rounded-xl p-6 text-white shadow-lg transform transition-all hover:scale-[1.01]">
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <div className="bg-white/20 p-3 rounded-full">
+            < div className="bg-gradient-to-r from-[#FF4B6E] to-[#FF2D55] rounded-xl p-8 text-white shadow-xl transform transition-all hover:scale-[1.01] hover:shadow-2xl" >
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-6">
+                    <div className="flex items-center gap-5">
+                        <div className="bg-white/20 p-4 rounded-full backdrop-blur-sm">
                             <TrendingDown className="w-8 h-8 text-white" />
                         </div>
                         <div>
-                            <h4 className="text-lg font-medium text-red-100">연간 총 절약 금액</h4>
-                            <p className="text-sm text-red-50">세무법인 해솔과 함께하면 이만큼 절약됩니다!</p>
+                            <div>
+                                <h4 className="text-2xl font-bold text-white mb-1 drop-shadow-sm">{period}년 총 절약 금액</h4>
+                                <p className="text-red-100 font-medium opacity-90">세무법인 해솔과 함께하면 이만큼 절약됩니다!</p>
+                            </div>
                         </div>
                     </div>
                     <div className="text-center sm:text-right">
-                        <div className="flex gap-2">
+                        <div className="text-4xl sm:text-5xl font-extrabold text-white mb-2 tracking-tight drop-shadow-md">
+                            {formatCurrency(totalAnnualSavings)}
+                        </div>
+                        <div className="flex gap-2 justify-end">
                             <Check className="w-5 h-5 text-teal-500 flex-shrink-0" />
                             <p>세무법인 해솔의 제안가는 부가세가 포함된 금액입니다.</p>
                         </div>
                     </div>
                 </div>
-            </div>
+            </div >
 
             {/* Educational Content Section */}
-            <div className="space-y-8 mb-12">
+            < div className="space-y-8 mb-12" >
                 {/* Section 1: Why not random accountant */}
-                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                < div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm" >
                     <h3 className="text-xl font-bold text-gray-800 mb-6 border-b pb-2">
                         1. 세무사를 아무 데나 맡기면 안 되는 이유
                     </h3>
@@ -476,10 +514,10 @@ const TaxLaborFeeCalculator = () => {
                             </p>
                         </div>
                     </div>
-                </div>
+                </div >
 
                 {/* Section 2: Why not online service */}
-                <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                < div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm" >
                     <h3 className="text-xl font-bold text-gray-800 mb-6 border-b pb-2">
                         2. 온라인 세무서(저가 플랫폼)를 쓰면 안 되는 이유
                     </h3>
@@ -528,10 +566,10 @@ const TaxLaborFeeCalculator = () => {
                             </p>
                         </div>
                     </div>
-                </div>
+                </div >
 
                 {/* Related News Links */}
-                <div className="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                < div className="bg-gray-50 rounded-xl p-6 border border-gray-200" >
                     <h4 className="text-sm font-bold text-gray-500 mb-3 flex items-center gap-2">
                         <FileText className="w-4 h-4" /> 관련 뉴스 자료
                     </h4>
@@ -567,11 +605,11 @@ const TaxLaborFeeCalculator = () => {
                             </a>
                         </li>
                     </ul>
-                </div>
-            </div>
+                </div >
+            </div >
 
             {/* Company Proposal Images Accordion */}
-            <div className="mt-4">
+            < div className="mt-4" >
                 <button
                     onClick={() => setIsProposalOpen(!isProposalOpen)}
                     className="flex items-center justify-center gap-2 w-full bg-white border-2 border-gray-200 text-gray-700 py-4 rounded-xl font-bold hover:bg-gray-50 hover:border-gray-300 transition-all shadow-sm group"
@@ -585,117 +623,119 @@ const TaxLaborFeeCalculator = () => {
                     )}
                 </button>
 
-                {isProposalOpen && (
-                    <div className="mt-4 space-y-0 transition-all duration-300 ease-in-out">
-                        {/* Proposal Image 1 */}
-                        <div className="w-full">
-                            <img
-                                src="/files/haesol_proposal/haesol_proposal_1.jpg"
-                                alt="세무법인 해솔 제안서 1"
-                                className="w-full h-auto block"
-                            />
-                        </div>
+                {
+                    isProposalOpen && (
+                        <div className="mt-4 space-y-0 transition-all duration-300 ease-in-out">
+                            {/* Proposal Image 1 */}
+                            <div className="w-full">
+                                <img
+                                    src="/files/haesol_proposal/haesol_proposal_1.jpg"
+                                    alt="세무법인 해솔 제안서 1"
+                                    className="w-full h-auto block"
+                                />
+                            </div>
 
-                        <div className="w-full">
-                            <img
-                                src="/files/haesol_proposal/haesol_building.png"
-                                alt="세무법인 해솔 사옥"
-                                className="w-full h-auto block"
-                            />
-                        </div>
+                            <div className="w-full">
+                                <img
+                                    src="/files/haesol_proposal/haesol_building.png"
+                                    alt="세무법인 해솔 사옥"
+                                    className="w-full h-auto block"
+                                />
+                            </div>
 
-                        {/* Member Grid Section (Moved) */}
-                        <div className="bg-white p-6 border-t border-b border-gray-100">
-                            <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">
-                                함께하는 세무법인 해솔 구성원
-                            </h3>
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                                {[
-                                    { name: '김도형 회계사', branch: '해솔 본점', location: '부산 금정구', image: '/files/haesol_proposal/세무법인해솔 구성원/해솔 본점 김도형 회계사 부산 금정구 소재.jpg' },
-                                    { name: '유정훈 세무사', branch: '해솔 부산진지점', location: '부산 연제구', image: '/files/haesol_proposal/세무법인해솔 구성원/해솔 부산진지점 유정훈세무사 부산 연제구 소재.jpg' },
-                                    { name: '이환성 세무사', branch: '해솔 북부산지점', location: '부산 사상구', image: '/files/haesol_proposal/세무법인해솔 구성원/해솔 북부산지점 이환성세무사 부산 사상구 소재.jpg' },
-                                    { name: '강재혁 세무사', branch: '해솔 이지지점', location: '부산 수영구', image: '/files/haesol_proposal/세무법인해솔 구성원/해솔 이지지점 강재혁세무사 부산 수영구 소재.jpg' },
-                                    { name: '김병수 총괄이사', branch: '해솔 청안점', location: '부산 중구', image: '/files/haesol_proposal/세무법인해솔 구성원/해솔 청안점 김병수총괄이사 부산 중구 소재.jpg' },
-                                ].map((member, index) => (
-                                    <div key={index} className="flex flex-col items-center">
-                                        <div className="w-full aspect-[3/4] relative rounded-lg overflow-hidden shadow-md mb-3">
-                                            <img
-                                                src={member.image}
-                                                alt={member.name}
-                                                className="w-full h-full object-cover"
-                                            />
+                            {/* Member Grid Section (Moved) */}
+                            <div className="bg-white p-6 border-t border-b border-gray-100">
+                                <h3 className="text-xl font-bold text-gray-800 mb-6 text-center">
+                                    함께하는 세무법인 해솔 구성원
+                                </h3>
+                                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                                    {[
+                                        { name: '김도형 회계사', branch: '해솔 본점', location: '부산 금정구', image: '/files/haesol_proposal/세무법인해솔 구성원/해솔 본점 김도형 회계사 부산 금정구 소재.jpg' },
+                                        { name: '유정훈 세무사', branch: '해솔 부산진지점', location: '부산 연제구', image: '/files/haesol_proposal/세무법인해솔 구성원/해솔 부산진지점 유정훈세무사 부산 연제구 소재.jpg' },
+                                        { name: '이환성 세무사', branch: '해솔 북부산지점', location: '부산 사상구', image: '/files/haesol_proposal/세무법인해솔 구성원/해솔 북부산지점 이환성세무사 부산 사상구 소재.jpg' },
+                                        { name: '강재혁 세무사', branch: '해솔 이지지점', location: '부산 수영구', image: '/files/haesol_proposal/세무법인해솔 구성원/해솔 이지지점 강재혁세무사 부산 수영구 소재.jpg' },
+                                        { name: '김병수 총괄이사', branch: '해솔 청안점', location: '부산 중구', image: '/files/haesol_proposal/세무법인해솔 구성원/해솔 청안점 김병수총괄이사 부산 중구 소재.jpg' },
+                                    ].map((member, index) => (
+                                        <div key={index} className="flex flex-col items-center">
+                                            <div className="w-full aspect-[3/4] relative rounded-lg overflow-hidden shadow-md mb-3">
+                                                <img
+                                                    src={member.image}
+                                                    alt={member.name}
+                                                    className="w-full h-full object-cover"
+                                                />
+                                            </div>
+                                            <div className="text-center">
+                                                <div className="text-xs font-bold text-blue-600 mb-1">{member.branch}</div>
+                                                <div className="text-sm font-bold text-gray-800 mb-0.5">{member.name}</div>
+                                                <div className="text-xs text-gray-500">{member.location}</div>
+                                            </div>
                                         </div>
-                                        <div className="text-center">
-                                            <div className="text-xs font-bold text-blue-600 mb-1">{member.branch}</div>
-                                            <div className="text-sm font-bold text-gray-800 mb-0.5">{member.name}</div>
-                                            <div className="text-xs text-gray-500">{member.location}</div>
-                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Team Gathering Photo */}
+                            <div className="w-full mt-4">
+                                <img
+                                    src="/files/haesol_proposal/세무법인해솔 구성원/세무법인해솔 임직원 송년회.jpg"
+                                    alt="세무법인 해솔 임직원 송년회"
+                                    className="w-full h-auto block rounded-lg"
+                                />
+                            </div>
+
+
+                            {/* Proposal Images 2-15 */}
+                            {/* Proposal Images 2-10 */}
+                            {Array.from({ length: 9 }, (_, i) => i + 2).map((num) => (
+                                <div key={`proposal-${num}`} className="w-full">
+                                    <img
+                                        src={`/files/haesol_proposal/haesol_proposal_${num}.jpg`}
+                                        alt={`세무법인 해솔 제안서 ${num}`}
+                                        className="w-full h-auto block"
+                                    />
+                                </div>
+                            ))}
+
+                            {/* Chat Screenshots (Moved) */}
+                            <div className="w-full bg-white p-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div className="rounded-xl overflow-hidden shadow-lg border border-gray-100">
+                                        <img
+                                            src="/images/haesol_chat_1.jpg"
+                                            alt="세무법인 해솔 고객 후기 1"
+                                            className="w-full h-auto"
+                                        />
                                     </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Team Gathering Photo */}
-                        <div className="w-full mt-4">
-                            <img
-                                src="/files/haesol_proposal/세무법인해솔 구성원/세무법인해솔 임직원 송년회.jpg"
-                                alt="세무법인 해솔 임직원 송년회"
-                                className="w-full h-auto block rounded-lg"
-                            />
-                        </div>
-
-
-                        {/* Proposal Images 2-15 */}
-                        {/* Proposal Images 2-10 */}
-                        {Array.from({ length: 9 }, (_, i) => i + 2).map((num) => (
-                            <div key={`proposal-${num}`} className="w-full">
-                                <img
-                                    src={`/files/haesol_proposal/haesol_proposal_${num}.jpg`}
-                                    alt={`세무법인 해솔 제안서 ${num}`}
-                                    className="w-full h-auto block"
-                                />
-                            </div>
-                        ))}
-
-                        {/* Chat Screenshots (Moved) */}
-                        <div className="w-full bg-white p-4">
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                <div className="rounded-xl overflow-hidden shadow-lg border border-gray-100">
-                                    <img
-                                        src="/images/haesol_chat_1.jpg"
-                                        alt="세무법인 해솔 고객 후기 1"
-                                        className="w-full h-auto"
-                                    />
-                                </div>
-                                <div className="rounded-xl overflow-hidden shadow-lg border border-gray-100">
-                                    <img
-                                        src="/images/haesol_chat_2.jpg"
-                                        alt="세무법인 해솔 고객 후기 2"
-                                        className="w-full h-auto"
-                                    />
-                                </div>
-                                <div className="rounded-xl overflow-hidden shadow-lg border border-gray-100">
-                                    <img
-                                        src="/images/haesol_chat_3.jpg"
-                                        alt="세무법인 해솔 고객 후기 3"
-                                        className="w-full h-auto"
-                                    />
+                                    <div className="rounded-xl overflow-hidden shadow-lg border border-gray-100">
+                                        <img
+                                            src="/images/haesol_chat_2.jpg"
+                                            alt="세무법인 해솔 고객 후기 2"
+                                            className="w-full h-auto"
+                                        />
+                                    </div>
+                                    <div className="rounded-xl overflow-hidden shadow-lg border border-gray-100">
+                                        <img
+                                            src="/images/haesol_chat_3.jpg"
+                                            alt="세무법인 해솔 고객 후기 3"
+                                            className="w-full h-auto"
+                                        />
+                                    </div>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Proposal Images 11-15 */}
-                        {Array.from({ length: 5 }, (_, i) => i + 11).map((num) => (
-                            <div key={`proposal-${num}`} className="w-full">
-                                <img
-                                    src={`/files/haesol_proposal/haesol_proposal_${num}.jpg`}
-                                    alt={`세무법인 해솔 제안서 ${num}`}
-                                    className="w-full h-auto block"
-                                />
-                            </div>
-                        ))}
-                    </div>
-                )}
+                            {/* Proposal Images 11-15 */}
+                            {Array.from({ length: 5 }, (_, i) => i + 11).map((num) => (
+                                <div key={`proposal-${num}`} className="w-full">
+                                    <img
+                                        src={`/files/haesol_proposal/haesol_proposal_${num}.jpg`}
+                                        alt={`세무법인 해솔 제안서 ${num}`}
+                                        className="w-full h-auto block"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    )
+                }
 
 
 
@@ -721,7 +761,7 @@ const TaxLaborFeeCalculator = () => {
                 </div>
 
 
-            </div>
+            </div >
         </div >
     );
 };
