@@ -3,18 +3,6 @@ import { Calculator, Info, CheckCircle2, AlertCircle, TrendingUp, Coins, BarChar
 import RevenueChart from './RevenueChart';
 
 const KarnaCalculator: React.FC = () => {
-    // --- Constants ---
-    const RENTAL_FEE = 847000; // 월 렌탈료(부가세 포함)
-    const VAT_REFUND = 77000; // 부가세 환급액
-    const SUPPLY_VALUE = 770000; // 경비 처리 가능액(공급가액)
-    const MARGIN_PER_UNIT = 25000; // 영양제 평균 마진
-
-
-    // Lump Sum Constants
-    const LUMP_SUM_PRICE = 24200000; // 일시불 가격 (부가세 포함)
-    const LUMP_SUM_SUPPLY = 22000000; // 일시불 공급가액
-    const LUMP_SUM_VAT = 2200000; // 일시불 부가세 환급액
-
     // --- Tax Brackets ---
     const taxBrackets = [
         { label: '1400만원 이하 (6.6%)', rate: 0.066, value: 'bracket1' },
@@ -30,55 +18,60 @@ const KarnaCalculator: React.FC = () => {
     const [activeTab, setActiveTab] = useState<'tax' | 'roi'>('tax');
     const [selectedBracket, setSelectedBracket] = useState(taxBrackets[3]); // Default: 38.5%
 
+    const [monthlyRent, setMonthlyRent] = useState<number>(847000); // 월 렌탈료 (VAT 포함)
+    const [lumpSumPrice, setLumpSumPrice] = useState<number>(24200000); // 일시불 구매가 (VAT 포함)
+    const [taxableRatio, setTaxableRatio] = useState<number>(20); // 과세매출 비율 (%)
+
     const [dailySales, setDailySales] = useState<number>(2); // ROI: 일 판매량
     const [marginPerUnit, setMarginPerUnit] = useState<number>(25000); // ROI: 영양제 개당 마진
     const [analysisYear, setAnalysisYear] = useState<number>(3); // 분석 기간 (년)
 
-    // --- Calculations (Tax Saving Mode) ---
-    // 월 소득세 절세액 = 공급가액 * 세율
-    const incomeTaxSaving = SUPPLY_VALUE * selectedBracket.rate;
+    // --- Calculations (Pharmacy Specific) ---
+    // 렌탈 기본 계산
+    const supplyAmount = Math.floor(monthlyRent / 1.1);
+    const vatAmount = monthlyRent - supplyAmount;
 
-    // 월 총 절세액 = 부가세 환급 + 월 소득세 절세액
-    const totalMonthlySaving = VAT_REFUND + incomeTaxSaving;
+    // 약국 특화 (과세/면세 안분)
+    const vatRefund = Math.floor(vatAmount * (taxableRatio / 100));
+    const vatNondeductible = vatAmount - vatRefund;
+    const expenseForIncomeTax = supplyAmount + vatNondeductible;
+    const incomeTaxSaving = Math.floor(expenseForIncomeTax * selectedBracket.rate);
 
-    // 실질 월 부담액 = 월 렌탈료 - 월 총 절세액
-    const realMonthlyCost = RENTAL_FEE - totalMonthlySaving;
-
-    // 실질 일 부담액 = 실질 월 부담액 / 30 (정수 반올림)
+    // 최종 결과
+    const totalMonthlySaving = vatRefund + incomeTaxSaving;
+    const realMonthlyCost = monthlyRent - totalMonthlySaving;
     const realDailyCost = Math.round(realMonthlyCost / 30);
 
-    // 손익분기 판매량 = 실질 일 부담액 / 영양제 평균 마진 (소수 첫째 자리)
-    const breakEvenVolume = (realDailyCost / marginPerUnit).toFixed(1);
+    // Lump Sum Calculations (Pharmacy Specific)
+    const lumpSumSupply = Math.floor(lumpSumPrice / 1.1);
+    const lumpSumVat = lumpSumPrice - lumpSumSupply;
+    const lumpSumVatRefund = Math.floor(lumpSumVat * (taxableRatio / 100));
+    const lumpSumVatNondeductible = lumpSumVat - lumpSumVatRefund;
+    const lumpSumExpenseForIncomeTax = lumpSumSupply + lumpSumVatNondeductible;
+    const lumpSumIncomeTaxSaving = Math.floor(lumpSumExpenseForIncomeTax * selectedBracket.rate);
+    const lumpSumTotalSaving = lumpSumVatRefund + lumpSumIncomeTaxSaving;
+    const realLumpSumCost = lumpSumPrice - lumpSumTotalSaving;
 
-    // Dynamic Analysis Calculation
+    // ROI & Future Analysis
     const analysisMonths = analysisYear * 12;
-    // 렌탈은 36개월까지만 비용 발생 (소유권 이전)
     const rentalMonthsApplied = Math.min(analysisMonths, 36);
-
-    // 누적 효과 (Rental)
-    const totalRentalCost = RENTAL_FEE * rentalMonthsApplied;
+    const totalRentalCost = monthlyRent * rentalMonthsApplied;
     const totalRentalSaving = totalMonthlySaving * rentalMonthsApplied;
     const realTotalInvestmentRental = totalRentalCost - totalRentalSaving;
 
-    // --- Calculations (ROI Mode) ---
-    // Lump Sum Calculations
-    const lumpSumTaxSaving = LUMP_SUM_SUPPLY * selectedBracket.rate; // 일시불 소득세 절세
-    const lumpSumTotalSaving = LUMP_SUM_VAT + lumpSumTaxSaving; // 일시불 총 절세 (부가세 + 소득세)
-    const realLumpSumCost = LUMP_SUM_PRICE - lumpSumTotalSaving; // 실질 일시불 비용
-
-    // Revenue Calculations (Dynamic Years)
-    // 총 수익 (매출 - 원가 = 마진) -> 마진 기준 계산
+    // Revenue
     const totalMargin = dailySales * 30 * analysisMonths * marginPerUnit;
 
-    // Net Profit Calculations
-    // 렌탈 순이익 = 총 마진 - 렌탈 실질 총 투자액
+    // Net Profit
     const netProfitRental = totalMargin - realTotalInvestmentRental;
-    // 일시불 순이익 = 총 마진 - 일시불 실질 비용
     const netProfitLumpSum = totalMargin - realLumpSumCost;
 
-    // ROI Calculations
+    // ROI
     const roiRental = (netProfitRental / realTotalInvestmentRental) * 100;
     const roiLumpSum = (netProfitLumpSum / realLumpSumCost) * 100;
+
+    // 손익분기
+    const breakEvenVolume = (realDailyCost / marginPerUnit).toFixed(1);
 
 
     // --- Helpers ---
@@ -130,7 +123,7 @@ const KarnaCalculator: React.FC = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Left Sidebar - Shared Input Section */}
-                <div className="lg:col-span-1 space-y-6">
+                <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-8 self-start">
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                         <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                             <Calculator className="w-5 h-5 text-gray-500" />
@@ -138,6 +131,65 @@ const KarnaCalculator: React.FC = () => {
                         </h3>
 
                         <div className="space-y-6">
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    월 렌탈료 (VAT 포함)
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        value={monthlyRent}
+                                        onChange={(e) => setMonthlyRent(Number(e.target.value))}
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm font-bold text-right pr-12"
+                                    />
+                                    <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
+                                        <span className="text-gray-500 font-bold">원</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                    일시불 구매가 (VAT 포함)
+                                </label>
+                                <div className="relative">
+                                    <input
+                                        type="number"
+                                        value={lumpSumPrice}
+                                        onChange={(e) => setLumpSumPrice(Number(e.target.value))}
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm font-bold text-right pr-12"
+                                    />
+                                    <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
+                                        <span className="text-gray-500 font-bold">원</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-2 flex justify-between">
+                                    <span>약국 과세매출 비율</span>
+                                    <span className="text-blue-600 font-bold">{taxableRatio}%</span>
+                                </label>
+                                <div className="space-y-2">
+                                    <input
+                                        type="range"
+                                        min="10"
+                                        max="40"
+                                        step="1"
+                                        value={taxableRatio}
+                                        onChange={(e) => setTaxableRatio(Number(e.target.value))}
+                                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+                                    />
+                                    <div className="flex justify-between text-[10px] text-gray-400 px-1">
+                                        <span>10%</span>
+                                        <span>40%</span>
+                                    </div>
+                                    <p className="text-[10px] text-gray-400 bg-gray-50 p-2 rounded-lg leading-relaxed">
+                                        💡 일반약, 의약외품 등 과세매출이 전체 매출에서 차지하는 비율
+                                    </p>
+                                </div>
+                            </div>
+
                             <div>
                                 <label className="block text-sm font-medium text-gray-700 mb-2">
                                     과세표준 구간 선택
@@ -203,13 +255,18 @@ const KarnaCalculator: React.FC = () => {
                                         <label className="block text-sm font-medium text-gray-700 mb-2">
                                             일일 예상 영양제 판매량 (개)
                                         </label>
-                                        <input
-                                            type="number"
-                                            value={dailySales}
-                                            onChange={(e) => setDailySales(Number(e.target.value))}
-                                            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm font-bold text-right"
-                                            placeholder="2"
-                                        />
+                                        <div className="relative">
+                                            <input
+                                                type="number"
+                                                value={dailySales}
+                                                onChange={(e) => setDailySales(Number(e.target.value))}
+                                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm font-bold text-right pr-28"
+                                                placeholder="2"
+                                            />
+                                            <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
+                                                <span className="text-green-600 text-xs font-bold whitespace-nowrap">월 약 {dailySales * 30}개</span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -291,7 +348,7 @@ const KarnaCalculator: React.FC = () => {
                                 <div className="bg-gray-50 p-4 rounded-xl border border-gray-100 text-center">
                                     <p className="text-sm text-gray-500 mb-1">명목 월 렌탈료</p>
                                     <p className="text-lg font-bold text-gray-400 line-through decoration-gray-400">
-                                        847,000원
+                                        {formatCurrency(monthlyRent)}
                                     </p>
                                 </div>
                                 <div className="bg-red-50 p-4 rounded-xl border border-red-100 text-center">
@@ -335,14 +392,14 @@ const KarnaCalculator: React.FC = () => {
                                             <div className="flex justify-between items-center text-gray-300">
                                                 <div className="flex flex-col">
                                                     <span>총 렌탈료</span>
-                                                    <span className="text-[10px] text-gray-500 mt-0.5">847,000원 × {rentalMonthsApplied}개월</span>
+                                                    <span className="text-[10px] text-gray-500 mt-0.5">{formatCurrency(monthlyRent)} × {rentalMonthsApplied}개월</span>
                                                 </div>
                                                 <span className="line-through text-gray-500">{formatCurrency(totalRentalCost)}</span>
                                             </div>
                                             <div className="flex justify-between items-center text-red-300">
                                                 <div className="flex flex-col">
                                                     <span>총 절세액</span>
-                                                    <span className="text-[10px] text-red-400 mt-0.5">({formatCurrency(VAT_REFUND)} + {formatCurrency(incomeTaxSaving)}) × {rentalMonthsApplied}개월</span>
+                                                    <span className="text-[10px] text-red-400 mt-0.5">부가세 {formatCurrency(vatRefund * rentalMonthsApplied)} + 소득세 {formatCurrency(incomeTaxSaving * rentalMonthsApplied)}</span>
                                                 </div>
                                                 <span>-{formatCurrency(totalRentalSaving)}</span>
                                             </div>
@@ -368,14 +425,14 @@ const KarnaCalculator: React.FC = () => {
                                             <div className="flex justify-between items-center text-gray-300">
                                                 <div className="flex flex-col">
                                                     <span>총 구매가</span>
-                                                    <span className="text-[10px] text-gray-500 mt-0.5">공급가 2,200만 + 부가세 220만</span>
+                                                    <span className="text-[10px] text-gray-500 mt-0.5">공급가 {formatCurrency(lumpSumSupply)} + 부가세 {formatCurrency(lumpSumVat)}</span>
                                                 </div>
-                                                <span className="line-through text-gray-500">{formatCurrency(LUMP_SUM_PRICE)}</span>
+                                                <span className="line-through text-gray-500">{formatCurrency(lumpSumPrice)}</span>
                                             </div>
                                             <div className="flex justify-between items-center text-red-300">
                                                 <div className="flex flex-col">
                                                     <span>총 절세액</span>
-                                                    <span className="text-[10px] text-red-400 mt-0.5">부가세 220만 + 소득세 {formatCurrency(lumpSumTaxSaving)}</span>
+                                                    <span className="text-[10px] text-red-400 mt-0.5">부가세 {formatCurrency(lumpSumVatRefund)} + 소득세 {formatCurrency(lumpSumIncomeTaxSaving)}</span>
                                                 </div>
                                                 <span className="whitespace-nowrap">-{formatCurrency(lumpSumTotalSaving)}</span>
                                             </div>
@@ -384,7 +441,7 @@ const KarnaCalculator: React.FC = () => {
                                                 <div className="flex flex-col">
                                                     <span className="text-white">실질 총 투자액</span>
                                                     <span className="text-[10px] text-purple-400 font-normal mt-0.5">
-                                                        {formatCurrency(LUMP_SUM_PRICE)} - {formatCurrency(lumpSumTotalSaving)}
+                                                        {formatCurrency(lumpSumPrice)} - {formatCurrency(lumpSumTotalSaving)}
                                                     </span>
                                                 </div>
                                                 <span className="text-purple-300 whitespace-nowrap">{formatCurrency(realLumpSumCost)}</span>
@@ -410,16 +467,16 @@ const KarnaCalculator: React.FC = () => {
                                         </div>
                                         <div className="flex justify-between items-center px-6 py-4">
                                             <span className="text-gray-600 text-sm">명목 월 렌탈료</span>
-                                            <span className="font-medium text-gray-900 whitespace-nowrap">847,000원</span>
+                                            <span className="font-medium text-gray-900 whitespace-nowrap">{formatCurrency(monthlyRent)}</span>
                                         </div>
                                         <div className="flex flex-col px-6 py-4 bg-gray-50/50 gap-1">
                                             <div className="flex justify-between items-center">
                                                 <span className="text-gray-600 text-sm">부가세 환급</span>
-                                                <span className="font-medium text-red-500 whitespace-nowrap">-77,000원</span>
+                                                <span className="font-medium text-red-500 whitespace-nowrap">-{formatCurrency(vatRefund)}</span>
                                             </div>
-                                            <p className="text-[10px] text-gray-400">사업 용도 지출이므로 부가세 10%를 환급받습니다.</p>
+                                            <p className="text-[10px] text-gray-400">과세매출 비율({taxableRatio}%)만큼 환급받습니다.</p>
                                             <span className="text-[10px] text-red-400 font-medium bg-red-50 px-1.5 py-0.5 rounded w-fit whitespace-nowrap">
-                                                770,000원 × 10% = 77,000원
+                                                {formatCurrency(vatAmount)} × {taxableRatio}% = {formatCurrency(vatRefund)}
                                             </span>
                                         </div>
                                         <div className="flex flex-col px-6 py-4 bg-gray-50/50 gap-1">
@@ -428,9 +485,14 @@ const KarnaCalculator: React.FC = () => {
                                                 <span className="font-medium text-red-500 whitespace-nowrap">-{formatCurrency(incomeTaxSaving)}</span>
                                             </div>
                                             <p className="text-[10px] text-gray-400">매월 렌탈료가 경비로 처리되어 발생하는 소득세 절감분입니다.</p>
-                                            <span className="text-[10px] text-blue-500 font-medium bg-blue-50 px-1.5 py-0.5 rounded w-fit whitespace-nowrap">
-                                                770,000원 × {(selectedBracket.rate * 100).toFixed(1)}% = {formatCurrency(incomeTaxSaving)}
-                                            </span>
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[10px] text-blue-500 font-medium bg-blue-50 px-1.5 py-0.5 rounded w-fit whitespace-nowrap">
+                                                    {formatCurrency(expenseForIncomeTax)} × {(selectedBracket.rate * 100).toFixed(1)}% = {formatCurrency(incomeTaxSaving)}
+                                                </span>
+                                                <span className="text-[10px] text-blue-600 font-bold bg-blue-100/50 px-1.5 py-0.5 rounded w-fit whitespace-nowrap">
+                                                    1년 누적 절감액: {formatCurrency(incomeTaxSaving * 12)}
+                                                </span>
+                                            </div>
                                         </div>
                                         <div className="flex flex-col px-6 py-4 bg-blue-50/30 gap-1">
                                             <div className="flex justify-between items-center">
@@ -439,7 +501,7 @@ const KarnaCalculator: React.FC = () => {
                                             </div>
                                             <p className="text-[10px] text-blue-400">실제 통장에서 나가는 돈에서 절세 혜택을 뺀 실질 비용입니다.</p>
                                             <span className="text-[10px] text-blue-500 font-medium bg-white px-1.5 py-0.5 rounded border border-blue-100 w-fit whitespace-nowrap">
-                                                847,000원 - ({formatCurrency(VAT_REFUND)} + {formatCurrency(incomeTaxSaving)}) = {formatCurrency(realMonthlyCost)}
+                                                {formatCurrency(monthlyRent)} - ({formatCurrency(vatRefund)} + {formatCurrency(incomeTaxSaving)}) = {formatCurrency(realMonthlyCost)}
                                             </span>
                                         </div>
                                         <div className="flex flex-col px-6 py-4 bg-blue-50/30 gap-1">
@@ -460,26 +522,26 @@ const KarnaCalculator: React.FC = () => {
                                         </div>
                                         <div className="flex justify-between items-center px-6 py-4">
                                             <span className="text-gray-600 text-sm">총 구매가(VAT포함)</span>
-                                            <span className="font-medium text-gray-900 whitespace-nowrap">24,200,000원</span>
+                                            <span className="font-medium text-gray-900 whitespace-nowrap">{formatCurrency(lumpSumPrice)}</span>
                                         </div>
                                         <div className="flex flex-col px-6 py-4 bg-gray-50/50 gap-1">
                                             <div className="flex justify-between items-center">
                                                 <span className="text-gray-600 text-sm">부가세 환급</span>
-                                                <span className="font-medium text-red-500 whitespace-nowrap">-2,200,000원</span>
+                                                <span className="font-medium text-red-500 whitespace-nowrap">-{formatCurrency(lumpSumVatRefund)}</span>
                                             </div>
-                                            <p className="text-[10px] text-gray-400">기기 구입비용의 부가세 10%를 환급받습니다.</p>
+                                            <p className="text-[10px] text-gray-400">과세매출 비율({taxableRatio}%)만큼 환급받습니다.</p>
                                             <span className="text-[10px] text-red-400 font-medium bg-red-50 px-1.5 py-0.5 rounded w-fit whitespace-nowrap">
-                                                22,000,000원 × 10% = 2,200,000원
+                                                {formatCurrency(lumpSumVat)} × {taxableRatio}% = {formatCurrency(lumpSumVatRefund)}
                                             </span>
                                         </div>
                                         <div className="flex flex-col px-6 py-4 bg-gray-50/50 gap-1">
                                             <div className="flex justify-between items-center">
                                                 <span className="text-gray-600 text-sm">소득세 절감</span>
-                                                <span className="font-medium text-red-500 whitespace-nowrap">-{formatCurrency(lumpSumTaxSaving)}</span>
+                                                <span className="font-medium text-red-500 whitespace-nowrap">-{formatCurrency(lumpSumIncomeTaxSaving)}</span>
                                             </div>
-                                            <p className="text-[10px] text-gray-400">구매 금액 전액 비용 처리 시 줄어드는 예상 소득세 총액입니다.</p>
+                                            <p className="text-[10px] text-gray-400">구매 금액 중 불공제분 포함 전액 비용 처리 시 절세액입니다.</p>
                                             <span className="text-[10px] text-purple-500 font-medium bg-purple-50 px-1.5 py-0.5 rounded w-fit whitespace-nowrap">
-                                                22,000,000원 × {(selectedBracket.rate * 100).toFixed(1)}% = {formatCurrency(lumpSumTaxSaving)}
+                                                {formatCurrency(lumpSumExpenseForIncomeTax)} × {(selectedBracket.rate * 100).toFixed(1)}% = {formatCurrency(lumpSumIncomeTaxSaving)}
                                             </span>
                                         </div>
                                         <div className="flex flex-col px-6 py-6 bg-purple-50/30 gap-1">
@@ -489,7 +551,7 @@ const KarnaCalculator: React.FC = () => {
                                             </div>
                                             <p className="text-[10px] text-purple-400">구매가에서 모든 절세 혜택을 차감한 최종 실질 비용입니다.</p>
                                             <span className="text-[10px] text-purple-500 font-medium bg-white px-1.5 py-0.5 rounded border border-purple-100 w-fit whitespace-nowrap">
-                                                24,200,000원 - ({formatCurrency(LUMP_SUM_VAT)} + {formatCurrency(lumpSumTaxSaving)}) = {formatCurrency(realLumpSumCost)}
+                                                {formatCurrency(lumpSumPrice)} - ({formatCurrency(lumpSumVatRefund)} + {formatCurrency(lumpSumIncomeTaxSaving)}) = {formatCurrency(realLumpSumCost)}
                                             </span>
                                         </div>
                                     </div>
@@ -540,9 +602,39 @@ const KarnaCalculator: React.FC = () => {
                                                 </p>
                                             </div>
                                             <div className="pt-4 border-t border-gray-100">
-                                                <div className="flex justify-between items-center">
+                                                <div className="flex justify-between items-center mb-4">
                                                     <span className="text-sm font-bold text-gray-600">ROI (투자수익률)</span>
                                                     <span className="text-2xl font-extrabold text-blue-600">{formatPercent(roiRental)}</span>
+                                                </div>
+
+                                                <div className="bg-blue-50/70 rounded-xl p-4 border border-blue-200 shadow-sm mt-4">
+                                                    <div className="flex items-center gap-1.5 mb-3 border-b border-blue-200 pb-2">
+                                                        <div className="w-1 h-3 bg-blue-500 rounded-full"></div>
+                                                        <span className="text-xs font-bold text-blue-800">상세 계산 근거 (Formula)</span>
+                                                    </div>
+                                                    <div className="space-y-4 text-left">
+                                                        <div className="space-y-1.5">
+                                                            <div className="flex justify-between text-xs">
+                                                                <span className="font-bold text-gray-700">1. 실질 투자금</span>
+                                                                <span className="font-bold text-blue-700">{formatCurrency(realTotalInvestmentRental)}</span>
+                                                            </div>
+                                                            <div className="text-[10px] text-gray-500 leading-relaxed bg-white/90 p-2.5 rounded-lg border border-blue-100 font-mono">
+                                                                = {formatCurrency(totalRentalCost)} <span className="text-gray-400 font-sans">(총 렌탈료)</span><br />
+                                                                - {formatCurrency(totalRentalSaving)} <span className="text-gray-400 font-sans">(총 절세액)</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="space-y-1.5">
+                                                            <div className="flex justify-between text-xs">
+                                                                <span className="font-bold text-gray-700">2. 예상 순수익</span>
+                                                                <span className="font-bold text-blue-700">{formatCurrency(netProfitRental)}</span>
+                                                            </div>
+                                                            <div className="text-[10px] text-gray-500 leading-relaxed bg-white/90 p-2.5 rounded-lg border border-blue-100 font-mono">
+                                                                = {formatCurrency(totalMargin)} <span className="text-gray-400 font-sans">(총 마진)</span><br />
+                                                                - {formatCurrency(realTotalInvestmentRental)} <span className="text-gray-400 font-sans">(투자금)</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -576,9 +668,39 @@ const KarnaCalculator: React.FC = () => {
                                                 </p>
                                             </div>
                                             <div className="pt-4 border-t border-gray-100">
-                                                <div className="flex justify-between items-center">
+                                                <div className="flex justify-between items-center mb-4">
                                                     <span className="text-sm font-bold text-gray-600">ROI (투자수익률)</span>
                                                     <span className="text-2xl font-extrabold text-purple-600">{formatPercent(roiLumpSum)}</span>
+                                                </div>
+
+                                                <div className="bg-purple-50/70 rounded-xl p-4 border border-purple-200 shadow-sm mt-4">
+                                                    <div className="flex items-center gap-1.5 mb-3 border-b border-purple-200 pb-2">
+                                                        <div className="w-1 h-3 bg-purple-500 rounded-full"></div>
+                                                        <span className="text-xs font-bold text-purple-800">상세 계산 근거 (Formula)</span>
+                                                    </div>
+                                                    <div className="space-y-4 text-left">
+                                                        <div className="space-y-1.5">
+                                                            <div className="flex justify-between text-xs">
+                                                                <span className="font-bold text-gray-700">1. 실질 투자금</span>
+                                                                <span className="font-bold text-purple-700">{formatCurrency(realLumpSumCost)}</span>
+                                                            </div>
+                                                            <div className="text-[10px] text-gray-500 leading-relaxed bg-white/90 p-2.5 rounded-lg border border-purple-100 font-mono">
+                                                                = {formatCurrency(LUMP_SUM_PRICE)} <span className="text-gray-400 font-sans">(구매가)</span><br />
+                                                                - {formatCurrency(lumpSumTotalSaving)} <span className="text-gray-400 font-sans">(총 절세액)</span>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="space-y-1.5">
+                                                            <div className="flex justify-between text-xs">
+                                                                <span className="font-bold text-gray-700">2. 예상 순수익</span>
+                                                                <span className="font-bold text-purple-700">{formatCurrency(netProfitLumpSum)}</span>
+                                                            </div>
+                                                            <div className="text-[10px] text-gray-500 leading-relaxed bg-white/90 p-2.5 rounded-lg border border-purple-100 font-mono">
+                                                                = {formatCurrency(totalMargin)} <span className="text-gray-400 font-sans">(총 마진)</span><br />
+                                                                - {formatCurrency(realLumpSumCost)} <span className="text-gray-400 font-sans">(투자금)</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
