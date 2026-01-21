@@ -337,9 +337,9 @@ function WageCalculator() {
                                     type="number"
                                     value={totalSalary}
                                     onChange={(e) => setTotalSalary(Number(e.target.value))}
-                                    className="w-full pl-4 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    className="w-full pl-4 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-black font-bold"
                                 />
-                                <span className="absolute right-4 top-3.5 text-gray-400 font-medium">원</span>
+                                <span className="absolute right-4 top-3.5 text-black font-extrabold">원</span>
                             </div>
                         </div>
 
@@ -359,9 +359,9 @@ function WageCalculator() {
                                     type="number"
                                     value={nonTaxable}
                                     onChange={(e) => setNonTaxable(Number(e.target.value))}
-                                    className="w-full pl-4 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                    className="w-full pl-4 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-black font-bold"
                                 />
-                                <span className="absolute right-4 top-3.5 text-gray-400 font-medium">원</span>
+                                <span className="absolute right-4 top-3.5 text-black font-extrabold">원</span>
                             </div>
 
                             {/* Non-taxable Guide Table */}
@@ -409,27 +409,27 @@ function WageCalculator() {
 
                         <div className="grid grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">주 소정근로시간</label>
+                                <label className="block text-sm font-bold text-black mb-1">주 소정근로시간</label>
                                 <div className="relative">
                                     <input
                                         type="number"
                                         value={weeklyWorkHours}
                                         onChange={(e) => setWeeklyWorkHours(Number(e.target.value))}
-                                        className="w-full pl-4 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        className="w-full pl-4 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-black font-bold"
                                     />
-                                    <span className="absolute right-4 top-3.5 text-gray-400 font-medium">시간</span>
+                                    <span className="absolute right-4 top-3.5 text-black font-extrabold">시간</span>
                                 </div>
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">주 고정연장시간</label>
+                                <label className="block text-sm font-bold text-black mb-1">주 고정연장시간</label>
                                 <div className="relative">
                                     <input
                                         type="number"
                                         value={weeklyOvertimeHours}
                                         onChange={(e) => setWeeklyOvertimeHours(Number(e.target.value))}
-                                        className="w-full pl-4 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                                        className="w-full pl-4 pr-12 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-black font-bold"
                                     />
-                                    <span className="absolute right-4 top-3.5 text-gray-400 font-medium">시간</span>
+                                    <span className="absolute right-4 top-3.5 text-black font-extrabold">시간</span>
                                 </div>
                             </div>
                         </div>
