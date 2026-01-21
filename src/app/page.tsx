@@ -16,6 +16,7 @@ import TaxLaborFeeCalculator from '@/components/TaxLaborFeeCalculator';
 import DoubleEntryBookkeepingGuide from '@/components/DoubleEntryBookkeepingGuide';
 import PolicyFundsFinder from '@/components/PolicyFundsFinder';
 import KarnaCalculator from '@/components/KarnaCalculator';
+import FloatingCTA from '@/components/FloatingCTA';
 import { Calculator, Calendar, DollarSign, Shield, AlertTriangle, Flame, Briefcase, CreditCard, Gift, Bike, PiggyBank, Coins, BookOpen, Search, Bot } from 'lucide-react';
 
 export default function Home() {
@@ -338,6 +339,7 @@ export default function Home() {
           {activeTab === 'karna' && <KarnaCalculator />}
         </div>
       </div>
+      <FloatingCTA />
     </main>
   );
 }
