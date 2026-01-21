@@ -329,7 +329,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                 </h3>
                                 <div className="space-y-3">
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-700 mb-1">연간 매출액 (부가세 포함)</label>
+                                        <label className="block text-xs font-bold text-black mb-1">연간 매출액 (부가세 포함)</label>
                                         <div className="relative">
                                             <input
                                                 type="text"
@@ -338,14 +338,14 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                     const val = e.target.value.replace(/,/g, '');
                                                     if (!isNaN(Number(val))) setRevenue(Number(val));
                                                 }}
-                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold text-sm text-gray-900"
+                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold text-sm text-black"
                                                 placeholder="0"
                                             />
-                                            <span className="absolute right-3 top-2 text-gray-400 text-xs">원</span>
+                                            <span className="absolute right-3 top-2 text-black font-bold text-xs">원</span>
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-700 mb-1">신용카드/현금영수증 매출액 (발행공제용)</label>
+                                        <label className="block text-xs font-bold text-black mb-1">신용카드/현금영수증 매출액 (발행공제용)</label>
                                         <div className="relative">
                                             <input
                                                 type="text"
@@ -354,15 +354,15 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                     const val = e.target.value.replace(/,/g, '');
                                                     if (!isNaN(Number(val))) setCreditCardSales(Number(val));
                                                 }}
-                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold text-sm text-gray-900"
+                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold text-sm text-black"
                                                 placeholder="0"
                                             />
-                                            <span className="absolute right-3 top-2 text-gray-400 text-xs">원</span>
+                                            <span className="absolute right-3 top-2 text-black font-bold text-xs">원</span>
                                         </div>
-                                        <p className="text-[10px] text-gray-500 mt-0.5">* 카드 사용액(지출)이 아닌 매출액입니다.</p>
+                                        <p className="text-[10px] text-black font-bold mt-0.5">* 카드 사용액(지출)이 아닌 매출액입니다.</p>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-700 mb-1">연간 지출액 (매입+경비)</label>
+                                        <label className="block text-xs font-bold text-black mb-1">연간 지출액 (매입+경비)</label>
                                         <div className="relative">
                                             <input
                                                 type="text"
@@ -371,15 +371,15 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                     const val = e.target.value.replace(/,/g, '');
                                                     if (!isNaN(Number(val))) setExpenses(Number(val));
                                                 }}
-                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold text-sm text-gray-900"
+                                                className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 outline-none font-bold text-sm text-black"
                                                 placeholder="0"
                                             />
-                                            <span className="absolute right-3 top-2 text-gray-400 text-xs">원</span>
+                                            <span className="absolute right-3 top-2 text-black font-bold text-xs">원</span>
                                         </div>
-                                        <p className="text-[10px] text-gray-500 mt-0.5">* 인건비 제외 (아래 별도 입력)</p>
+                                        <p className="text-[10px] text-black font-bold mt-0.5">* 인건비 제외 (아래 별도 입력)</p>
                                     </div>
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-700 mb-1">사업자 유형</label>
+                                        <label className="block text-xs font-bold text-black mb-1">사업자 유형</label>
                                         <div className="flex gap-2">
                                             <button
                                                 onClick={() => setVatMode('general')}
@@ -397,7 +397,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-700 mb-1">업종 (복식부기 의무 판단용)</label>
+                                        <label className="block text-xs font-bold text-black mb-1">업종 (복식부기 의무 판단용)</label>
                                         <div className="grid grid-cols-1 gap-1.5">
                                             <button
                                                 onClick={() => setIndustryGroup('retail')}
@@ -424,11 +424,11 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-bold text-gray-700 mb-1">기장 방식 (기장세액공제)</label>
+                                        <label className="block text-xs font-bold text-black mb-1">기장 방식 (기장세액공제)</label>
                                         <div className="flex gap-2">
                                             <button
                                                 onClick={() => setIsDoubleEntry(false)}
-                                                className={`flex-1 py-1.5 rounded-lg font-bold text-xs border ${!isDoubleEntry ? 'bg-gray-100 border-gray-300 text-gray-600' : 'border-gray-200 text-gray-400'}`}
+                                                className={`flex-1 py-1.5 rounded-lg font-bold text-xs border ${!isDoubleEntry ? 'bg-gray-100 border-gray-300 text-black' : 'border-gray-200 text-gray-400'}`}
                                             >
                                                 간편장부
                                             </button>
@@ -480,20 +480,20 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                             </h4>
                                             <div className="grid grid-cols-2 gap-2">
                                                 <div>
-                                                    <label className="block text-[10px] font-bold text-gray-600 mb-1">직원 수</label>
+                                                    <label className="block text-[10px] font-bold text-black mb-1">직원 수</label>
                                                     <div className="relative">
                                                         <input
                                                             type="number"
                                                             value={employeeCount}
                                                             onChange={(e) => setEmployeeCount(Number(e.target.value))}
-                                                            className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs text-gray-900"
+                                                            className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs text-black"
                                                             placeholder="0"
                                                         />
-                                                        <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">명</span>
+                                                        <span className="absolute right-2 top-1.5 text-black font-bold text-[10px]">명</span>
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <label className="block text-[10px] font-bold text-gray-600 mb-1">1인당 월 급여</label>
+                                                    <label className="block text-[10px] font-bold text-black mb-1">1인당 월 급여</label>
                                                     <div className="relative">
                                                         <input
                                                             type="text"
@@ -502,10 +502,10 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                                 const val = e.target.value.replace(/,/g, '');
                                                                 if (!isNaN(Number(val))) setEmployeeSalary(Number(val));
                                                             }}
-                                                            className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs text-gray-900"
+                                                            className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs text-black"
                                                             placeholder="0"
                                                         />
-                                                        <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">원</span>
+                                                        <span className="absolute right-2 top-1.5 text-black font-bold text-[10px]">원</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -518,20 +518,20 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                             </h4>
                                             <div className="grid grid-cols-2 gap-2">
                                                 <div>
-                                                    <label className="block text-[10px] font-bold text-gray-600 mb-1">인원 수</label>
+                                                    <label className="block text-[10px] font-bold text-black mb-1">인원 수</label>
                                                     <div className="relative">
                                                         <input
                                                             type="number"
                                                             value={freelancerCount}
                                                             onChange={(e) => setFreelancerCount(Number(e.target.value))}
-                                                            className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs text-gray-900"
+                                                            className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs text-black"
                                                             placeholder="0"
                                                         />
-                                                        <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">명</span>
+                                                        <span className="absolute right-2 top-1.5 text-black font-bold text-[10px]">명</span>
                                                     </div>
                                                 </div>
                                                 <div>
-                                                    <label className="block text-[10px] font-bold text-gray-600 mb-1">1인당 월 지급액</label>
+                                                    <label className="block text-[10px] font-bold text-black mb-1">1인당 월 지급액</label>
                                                     <div className="relative">
                                                         <input
                                                             type="text"
@@ -540,10 +540,10 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                                 const val = e.target.value.replace(/,/g, '');
                                                                 if (!isNaN(Number(val))) setFreelancerPayment(Number(val));
                                                             }}
-                                                            className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs text-gray-900"
+                                                            className="w-full p-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-right pr-6 text-xs text-black"
                                                             placeholder="0"
                                                         />
-                                                        <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">원</span>
+                                                        <span className="absolute right-2 top-1.5 text-black font-bold text-[10px]">원</span>
                                                     </div>
                                                 </div>
                                             </div>
@@ -691,7 +691,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                 {isRefundCalculatorOpen && (
                                     <div className="p-4 pt-0 space-y-3 border-t border-blue-100/50">
                                         <div>
-                                            <label className="block text-xs font-bold text-blue-700 mb-1">지출 금액 (부가세 포함)</label>
+                                            <label className="block text-xs font-bold text-blue-800 mb-1">지출 금액 (부가세 포함)</label>
                                             <input
                                                 type="text"
                                                 value={refundInput === 0 ? '' : refundInput.toLocaleString()}
@@ -699,7 +699,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                     const val = e.target.value.replace(/,/g, '');
                                                     if (!isNaN(Number(val))) setRefundInput(Number(val));
                                                 }}
-                                                className="w-full p-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-right text-sm text-gray-900"
+                                                className="w-full p-2 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-right text-sm text-black"
                                                 placeholder="0"
                                             />
                                         </div>
@@ -730,7 +730,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                     <CreditCard className="w-3 h-3" /> 사업자 카드 사용
                                 </h4>
                                 <div>
-                                    <label className="block text-[10px] font-bold text-gray-600 mb-1">월 평균 카드 사용금액</label>
+                                    <label className="block text-[10px] font-bold text-black mb-1">월 평균 카드 사용금액</label>
                                     <div className="relative">
                                         <input
                                             type="text"
@@ -739,10 +739,10 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                 const val = e.target.value.replace(/,/g, '');
                                                 if (!isNaN(Number(val))) setCardSpending(Number(val));
                                             }}
-                                            className="w-full p-1.5 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-right pr-6 text-xs text-gray-900"
+                                            className="w-full p-1.5 border border-blue-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none font-bold text-right pr-6 text-xs text-black"
                                             placeholder="0"
                                         />
-                                        <span className="absolute right-2 top-1.5 text-gray-400 text-[10px]">원</span>
+                                        <span className="absolute right-2 top-1.5 text-black font-bold text-[10px]">원</span>
                                     </div>
                                     {result.cardBenefit > 0 && (
                                         <div className="mt-2 bg-white p-2 rounded-lg border border-blue-100">
@@ -777,7 +777,7 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                             {/* 5. Yellow Umbrella Input & Benefits */}
                             <div className="space-y-2">
                                 <div className="bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
-                                    <label className="block text-xs font-bold text-gray-700 mb-1">노란우산공제 월 납입액</label>
+                                    <label className="block text-xs font-bold text-black mb-1">노란우산공제 월 납입액</label>
                                     <div className="relative">
                                         <input
                                             type="text"
@@ -786,10 +786,10 @@ const TaxSavingCalculator: React.FC<TaxSavingCalculatorProps> = ({
                                                 const val = e.target.value.replace(/,/g, '');
                                                 if (!isNaN(Number(val))) setYellowUmbrella(Number(val));
                                             }}
-                                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none font-bold text-sm text-gray-900"
+                                            className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-yellow-500 outline-none font-bold text-sm text-black"
                                             placeholder="0"
                                         />
-                                        <span className="absolute right-3 top-2 text-gray-400 text-xs">원</span>
+                                        <span className="absolute right-3 top-2 text-black font-bold text-xs">원</span>
                                     </div>
                                 </div>
 
