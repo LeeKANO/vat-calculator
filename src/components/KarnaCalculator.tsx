@@ -125,14 +125,14 @@ const KarnaCalculator: React.FC = () => {
                 {/* Left Sidebar - Shared Input Section */}
                 <div className="lg:col-span-1 space-y-6 lg:sticky lg:top-8 self-start">
                     <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                        <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
-                            <Calculator className="w-5 h-5 text-gray-500" />
+                        <h3 className="text-lg font-bold text-black mb-4 flex items-center gap-2">
+                            <Calculator className="w-5 h-5 text-black" />
                             공통 설정
                         </h3>
 
                         <div className="space-y-6">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-bold text-black mb-2">
                                     월 렌탈료 (VAT 포함)
                                 </label>
                                 <div className="relative">
@@ -140,16 +140,16 @@ const KarnaCalculator: React.FC = () => {
                                         type="number"
                                         value={monthlyRent}
                                         onChange={(e) => setMonthlyRent(Number(e.target.value))}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm font-bold text-right pr-12"
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm font-bold text-right pr-12 text-black"
                                     />
                                     <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
-                                        <span className="text-gray-500 font-bold">원</span>
+                                        <span className="text-black font-bold">원</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-bold text-black mb-2">
                                     일시불 구매가 (VAT 포함)
                                 </label>
                                 <div className="relative">
@@ -157,16 +157,16 @@ const KarnaCalculator: React.FC = () => {
                                         type="number"
                                         value={lumpSumPrice}
                                         onChange={(e) => setLumpSumPrice(Number(e.target.value))}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm font-bold text-right pr-12"
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm font-bold text-right pr-12 text-black"
                                     />
                                     <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
-                                        <span className="text-gray-500 font-bold">원</span>
+                                        <span className="text-black font-bold">원</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2 flex justify-between">
+                                <label className="block text-sm font-bold text-black mb-2 flex justify-between">
                                     <span>약국 과세매출 비율</span>
                                     <span className="text-blue-600 font-bold">{taxableRatio}%</span>
                                 </label>
@@ -180,18 +180,18 @@ const KarnaCalculator: React.FC = () => {
                                         onChange={(e) => setTaxableRatio(Number(e.target.value))}
                                         className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                     />
-                                    <div className="flex justify-between text-[10px] text-gray-400 px-1">
+                                    <div className="flex justify-between text-[10px] text-black font-bold px-1">
                                         <span>10%</span>
                                         <span>40%</span>
                                     </div>
-                                    <p className="text-[10px] text-gray-400 bg-gray-50 p-2 rounded-lg leading-relaxed">
+                                    <p className="text-[10px] text-black font-bold bg-gray-50 p-2 rounded-lg leading-relaxed">
                                         💡 일반약, 의약외품 등 과세매출이 전체 매출에서 차지하는 비율
                                     </p>
                                 </div>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-bold text-black mb-2">
                                     과세표준 구간 선택
                                 </label>
                                 <div className="relative">
@@ -201,7 +201,7 @@ const KarnaCalculator: React.FC = () => {
                                             const bracket = taxBrackets.find(b => b.value === e.target.value);
                                             if (bracket) setSelectedBracket(bracket);
                                         }}
-                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer"
+                                        className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm appearance-none cursor-pointer text-black font-bold"
                                     >
                                         {taxBrackets.map((bracket) => (
                                             <option key={bracket.value} value={bracket.value}>
@@ -218,7 +218,7 @@ const KarnaCalculator: React.FC = () => {
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-bold text-black mb-2">
                                     분석 기간 설정
                                 </label>
                                 <div className="grid grid-cols-1 gap-2">
@@ -227,11 +227,11 @@ const KarnaCalculator: React.FC = () => {
                                             type="number"
                                             value={analysisYear}
                                             onChange={(e) => setAnalysisYear(Number(e.target.value))}
-                                            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm font-bold text-right pr-12"
+                                            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-sm font-bold text-right pr-12 text-black"
                                             placeholder="3"
                                         />
                                         <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
-                                            <span className="text-gray-500 font-bold">년</span>
+                                            <span className="text-black font-bold">년</span>
                                         </div>
                                     </div>
                                 </div>
@@ -240,19 +240,19 @@ const KarnaCalculator: React.FC = () => {
                             {activeTab === 'roi' && (
                                 <div className="space-y-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        <label className="block text-sm font-bold text-black mb-2">
                                             영양제 개당 마진 (원)
                                         </label>
                                         <input
                                             type="number"
                                             value={marginPerUnit}
                                             onChange={(e) => setMarginPerUnit(Number(e.target.value))}
-                                            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm font-bold text-right"
+                                            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm font-bold text-right text-black"
                                             placeholder="25000"
                                         />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                                        <label className="block text-sm font-bold text-black mb-2">
                                             일일 예상 영양제 판매량 (개)
                                         </label>
                                         <div className="relative">
@@ -260,7 +260,7 @@ const KarnaCalculator: React.FC = () => {
                                                 type="number"
                                                 value={dailySales}
                                                 onChange={(e) => setDailySales(Number(e.target.value))}
-                                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm font-bold text-right pr-28"
+                                                className="w-full p-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-all text-sm font-bold text-right pr-28 text-black"
                                                 placeholder="2"
                                             />
                                             <div className="absolute inset-y-0 right-0 flex items-center px-4 pointer-events-none">
@@ -654,7 +654,7 @@ const KarnaCalculator: React.FC = () => {
                                             <div>
                                                 <p className="text-xs text-gray-500 mb-1">실질 총 투자비용</p>
                                                 <p className="text-sm text-gray-400 font-medium mb-0.5 line-through">
-                                                    정가 {formatCurrency(LUMP_SUM_PRICE)}
+                                                    정가 {formatCurrency(lumpSumPrice)}
                                                 </p>
                                                 <p className="text-xl font-bold text-gray-900">{formatCurrency(realLumpSumCost)}</p>
                                                 <p className="text-[10px] text-gray-400 mt-0.5">
@@ -685,7 +685,7 @@ const KarnaCalculator: React.FC = () => {
                                                                 <span className="font-bold text-purple-700">{formatCurrency(realLumpSumCost)}</span>
                                                             </div>
                                                             <div className="text-[10px] text-gray-500 leading-relaxed bg-white/90 p-2.5 rounded-lg border border-purple-100 font-mono">
-                                                                = {formatCurrency(LUMP_SUM_PRICE)} <span className="text-gray-400 font-sans">(구매가)</span><br />
+                                                                = {formatCurrency(lumpSumPrice)} <span className="text-black font-sans">(구매가)</span><br />
                                                                 - {formatCurrency(lumpSumTotalSaving)} <span className="text-gray-400 font-sans">(총 절세액)</span>
                                                             </div>
                                                         </div>
